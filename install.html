@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install picom-motion</title>
+<meta name="description" content="How to build the picom fork and the ws-direction and win-cause plugins, and the picom and i3 config lines they need.">
+<meta property="og:title" content="Install picom-motion">
+<meta property="og:description" content="How to build the picom fork and the ws-direction and win-cause plugins, and the picom and i3 config lines they need.">
+<meta property="og:image" content="https://jornc.github.io/picom-motion/workspaces-slide.png">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Recursive:wght,MONO@300..900,0..1&amp;display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="site.js" defer></script>
+</head>
+<body>
+<nav class="bar" aria-label="Pages">
+	<ol>
+		<li><a href="index.html">1:picom-motion</a></li>
+		<li><a href="workspaces.html">2:workspaces</a></li>
+		<li><a href="windows.html">3:windows</a></li>
+		<li><a href="install.html" aria-current="page">4:install</a></li>
+		<li><a href="under-the-hood.html">5:under the hood</a></li>
+	</ol>
+	<a class="status mono" href="https://github.com/JornC/picom-motion">GitHub</a>
+</nav>
+
+<div class="page">
+	<header class="text">
+		<h1 class="mono">Install</h1>
+		<p class="lede">One path for both plugins: build the picom fork, build the two plugins against it, and add a few lines to <code>picom.conf</code> and the i3 config.</p>
+		<p class="note">Read <a href="#status">What is checked</a> first: this runs every day on one machine, and much less has been tried elsewhere. The code was written with AI; see <a href="index.html#note">a note before you read on</a>.</p>
+	</header>
+
+	<main class="text">
+		<section id="needs">
+			<h2>What you need</h2>
+			<ul>
+				<li>X11 and a stock i3.</li>
+				<li>A GPU with OpenGL and EGL, for picom's <code>egl</code> backend. glx works too, and draws the same; egl is the one used and measured, because it can give picom's GPU work priority over the programs' drawing.</li>
+				<li>picom's build tools and libraries: meson, ninja and the libraries listed in <a href="https://github.com/JornC/picom/tree/winanim#build">picom's README</a>. For the man page, asciidoctor.</li>
+				<li>For the plugins: make, pkg-config, a C compiler that knows C23 (GCC 14 or clang 18 and later), and the headers of xcb, xcb-damage, xcb-randr, xcb-xfixes, xcb-sync and pixman.</li>
+			</ul>
+			<p>Clone the three repositories side by side, in one directory. Each block below starts in that directory.</p>
+		</section>
+
+		<section id="picom">
+			<h2>1. The picom fork</h2>
+			<p>The <code>winanim</code> branch: picom's development branch with the plugin API and the other changes on top.</p>
+<pre><code>git clone --branch winanim https://github.com/JornC/picom.git
+cd picom
+meson setup --buildtype=release build
+ninja -C build
+sudo ninja -C build install</code></pre>
+			<p>This installs picom under <code>/usr/local</code>, next to your distribution's picom; <code>/usr/local/bin</code> comes first on most systems. Add <code>-Dwith_docs=true</code> to <code>meson setup</code> for the man page.</p>
+			<p class="note">Arch's own picom package adds one small patch from picom, for a black screen with the glx backend on some GPUs. If you see that, apply it before you build, in the <code>picom</code> directory: <code>curl -L https://github.com/yshui/picom/commit/676196359c15bb654696b05700330685db914710.patch | patch -Np1</code></p>
+		</section>
+
+		<section id="ws-direction">
+			<h2>2. ws-direction</h2>
+<pre><code>git clone https://github.com/JornC/picom-ws-direction-plugin.git
+cd picom-ws-direction-plugin
+make PICOM_API_CFLAGS=-I../picom/include
+make install PICOM_API_CFLAGS=-I../picom/include</code></pre>
+			<p>This puts the plugin in <code>~/.config/picom/plugins/</code>, the styles in <code>~/.config/picom/include/ws-direction/</code>, the <code>ws-direction</code> command in <code>~/.local/bin/</code> and its man page in <code>~/.local/share/man/man1/</code>. picom finds the plugin and the styles there by name. <code>make uninstall</code> takes them away again.</p>
+		</section>
+
+		<section id="win-cause">
+			<h2>3. win-cause</h2>
+<pre><code>git clone https://github.com/JornC/picom-win-cause-plugin.git
+cd picom-win-cause-plugin
+make PICOM_API_CFLAGS=-I../picom/include
+make install PICOM_API_CFLAGS=-I../picom/include</code></pre>
+			<p>The same places: the plugin in <code>~/.config/picom/plugins/</code>, the styles in <code>~/.config/picom/include/win-cause/</code>, and the <code>win-cause</code> command in <code>~/.local/bin/</code>.</p>
+		</section>
+
+		<section id="picom-conf">
+			<h2>4. picom.conf</h2>
+			<p>A workspace style, the overview, and the tile style for windows:</p>
+<pre><code># egl asks the GPU to put picom's frames before the programs' drawing.
+backend = "egl";
+vsync = true;
+# Keep picom compositing over fullscreen windows: otherwise
+# it drops the pictures of hidden windows that styles draw.
+unredir-if-possible = false;
+
+plugins = ["ws-direction.so", "win-cause.so"];
+rules = ({
+  match = "!override_redirect &amp;&amp; window_type = 'normal'";
+  @include "ws-direction/slide.conf"
+}, {
+  match = "!override_redirect &amp;&amp; window_type = 'normal'";
+  @include "ws-direction/wall.conf"
+}, {
+  match = "!override_redirect &amp;&amp; window_type = 'normal'";
+  @include "win-cause/tile.conf"
+}, {
+  match = "!override_redirect &amp;&amp; window_type = 'normal' &amp;&amp; !I3_FLOATING_WINDOW@";
+  @include "win-cause/tile-geometry.conf"
+});</code></pre>
+			<p>To try another style, change its name and save; picom reloads by itself. The styles are on the <a href="workspaces.html">Workspaces</a> and <a href="windows.html">Windows</a> pages.</p>
+		</section>
+
+		<section id="i3">
+			<h2>5. The i3 config</h2>
+			<p>Start picom and bind the overview:</p>
+<pre><code># Start picom, then fill in the pictures of hidden workspaces.
+exec_always --no-startup-id picom -b &amp;&amp; ws-direction warm
+
+# The overview: $mod+Tab opens it, the arrows move,
+# Return, Escape or $mod+Tab close it, a click picks a window.
+set $overview exec --no-startup-id ws-direction overview
+bindsym $mod+Tab mode "overview"; $overview open --wait &amp;&amp; i3-msg -q mode default
+mode "overview" {
+    bindsym Left workspace prev_on_output
+    bindsym Up workspace prev_on_output
+    bindsym Right workspace next_on_output
+    bindsym Down workspace next_on_output
+    bindsym Return mode "default"; $overview close
+    bindsym Escape mode "default"; $overview close
+    bindsym $mod+Tab mode "default"; $overview close
+}</code></pre>
+			<p>i3 must find <code>ws-direction</code> and <code>win-cause</code> on its PATH. <code>~/.local/bin</code> is often not on the PATH of a window manager that a display manager starts; then give the full path.</p>
+		</section>
+
+		<section id="nvidia">
+			<h2>6. NVIDIA: turn OpenGL flipping off</h2>
+<pre><code>nvidia-settings -n -a AllowFlipping=0</code></pre>
+			<p>With two monitors at different rates on one X screen (here 175 Hz and 60 Hz), the driver's OpenGL flipping made picom's frames wait for the 60 Hz monitor, whatever picom's own vsync setting was. With flipping off, frames came at 175 Hz again, and late frames fell from about 26% to 10%. The numbers are under <a href="under-the-hood.html#flipping">Under the hood</a>.</p>
+			<p>It is a driver setting for every OpenGL program, not only picom, and <code>-n</code> doesn't save it, so run it each time before picom starts. Check for tearing on every monitor, and in fullscreen games. My i3 line, used instead of the first picom line above, also syncs picom to the fast monitor (DFP-1, as <code>nvidia-settings</code> names it):</p>
+<pre><code>exec_always --no-startup-id sh -c 'nvidia-settings -n -a AllowFlipping=0 &gt;/dev/null 2&gt;&amp;1; pgrep -x picom &gt;/dev/null || __GL_SYNC_DISPLAY_DEVICE=DFP-1 picom -b'</code></pre>
+			<p class="note">With one monitor, or all monitors at one rate, this may not matter. That hasn't been measured.</p>
+		</section>
+
+		<section id="check">
+			<h2>Check that it works</h2>
+			<ul>
+				<li><code>picom --diagnostics</code> lists <code>ws-pass</code>, <code>ws-unfold</code> and <code>ws-fold</code> under "Custom animation triggers" when picom loaded ws-direction.</li>
+				<li><code>ws-direction --version</code> prints the version, and shows that the command is on your PATH.</li>
+				<li>Start picom with <code>WS_DIRECTION_LOG=/path/to/file</code> in its environment, and ws-direction writes every switch it sees there, and why.</li>
+				<li>A plugin that can't start says why on picom's standard error, in a line that starts with its name.</li>
+			</ul>
+		</section>
+
+		<section id="status">
+			<h2>What is checked</h2>
+			<ul>
+				<li><strong>In daily use:</strong> my machine. Arch Linux, NVIDIA, stock i3, two monitors, egl, built with my own Arch package from the same code.</li>
+				<li><strong>The commands on this page</strong> come from picom's README, the plugins' Makefiles and READMEs, and my package recipe. The build steps were run on local clones of the same branches, and the <code>picom.conf</code> above loads in the built picom with both plugins. They were not yet run from a fresh clone of the public repositories.</li>
+				<li><strong>Not tried:</strong> other distributions, AMD and Intel GPUs, and window managers other than i3.</li>
+			</ul>
+			<p>If something doesn't work, an issue on the plugin's repository helps, with what you ran and what it said.</p>
+		</section>
+	</main>
+
+	<footer class="text">
+		<p>The plugins are under the MPL-2.0. The picom fork keeps picom's own licenses (MPL-2.0 and MIT).</p>
+	</footer>
+</div>
+</body>
+</html>

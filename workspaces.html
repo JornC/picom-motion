@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workspace styles</title>
+<meta name="description" content="ws-direction: a picom plugin that tells animation scripts which way an i3 workspace switch went and which monitor it is on, with its switch styles and overviews.">
+<meta property="og:title" content="Workspace styles: ws-direction">
+<meta property="og:description" content="ws-direction: a picom plugin that tells animation scripts which way an i3 workspace switch went and which monitor it is on, with its switch styles and overviews.">
+<meta property="og:image" content="https://jornc.github.io/picom-motion/workspaces-slide.png">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Recursive:wght,MONO@300..900,0..1&amp;display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="site.js" defer></script>
+</head>
+<body>
+<nav class="bar" aria-label="Pages">
+	<ol>
+		<li><a href="index.html">1:picom-motion</a></li>
+		<li><a href="workspaces.html" aria-current="page">2:workspaces</a></li>
+		<li><a href="windows.html">3:windows</a></li>
+		<li><a href="install.html">4:install</a></li>
+		<li><a href="under-the-hood.html">5:under the hood</a></li>
+	</ol>
+	<a class="status mono" href="https://github.com/JornC/picom-ws-direction-plugin">GitHub</a>
+</nav>
+
+<div class="page">
+	<header class="text">
+		<h1 class="mono">ws-direction</h1>
+		<p class="lede">A <a href="https://github.com/yshui/picom">picom</a> plugin that tells your animation scripts which way a workspace switch went, which monitor the workspace is on, and where each workspace lies. Windows slide the right way, stay on their own monitor, and can show the workspaces a switch passes.</p>
+		<p>Workspace transitions are the smaller part of this project, and the part I'd ask picom about first. The plugin reads only the standard window manager properties (EWMH), so it isn't tied to i3. Every switch style needs five changes to picom: plugin variables (proposed as <a href="https://github.com/yshui/picom/pull/1550">#1550</a>), a small xrender fix (<a href="https://github.com/yshui/picom/pull/1551">#1551</a>), three fixes to script expressions, functions such as min, max, sin and cos, and the state an interrupted animation left. The last three are written and tested, not proposed yet. The 3D styles also need windows in perspective, and the overview and the switches that pass workspaces a few more general hooks. See <a href="under-the-hood.html#backlog">the backlog</a>.</p>
+		<p class="note">For now it needs the picom fork; see <a href="install.html">Install</a>. The source is on <a href="https://github.com/JornC/picom-ws-direction-plugin">GitHub</a>. The code was written with AI; see <a href="index.html#note">a note before you read on</a>.</p>
+	</header>
+
+	<main>
+		<section id="demo" aria-label="Demo">
+			<figure>
+				<div class="frame demo" data-file="workspaces-slide.webm">
+					<video class="screen" autoplay muted loop playsinline poster="workspaces-slide.png" width="1720" height="1100" aria-describedby="demo-caption">
+						<source src="workspaces-slide.webm" type="video/webm">
+						<source src="workspaces-slide.mp4" type="video/mp4">
+					</video>
+				</div>
+				<figcaption id="demo-caption" class="text">Two monitors under i3, in the slide style, on a real screen. Going to a higher workspace brings it in from the right on the portrait monitor, and from below on the landscape one. Going back reverses the slide. Pauses between switches are trimmed to the same length; the animations themselves are unedited.</figcaption>
+			</figure>
+		</section>
+
+		<section id="styles">
+			<div class="text">
+				<h2>Styles</h2>
+				<p>The plugin only hands picom numbers. The animation itself is a picom animation script, so it can look however you like. Each style is one file, and one line in <code>picom.conf</code> picks it. Change the name and save; picom reloads by itself.</p>
+			</div>
+			<div class="gallery">
+				<figure id="style-slide">
+					<div class="frame demo" data-file="workspaces-slide.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-slide.png" width="1720" height="1100" aria-label="The slide style">
+							<source src="workspaces-slide.webm" type="video/webm">
+							<source src="workspaces-slide.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">slide</h3>
+						<p>The new workspace pushes the old one out.</p>
+<pre><code>@include "ws-direction/slide.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-push">
+					<div class="frame demo" data-file="workspaces-push.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-push.png" width="1720" height="1100" aria-label="The push style">
+							<source src="workspaces-push.webm" type="video/webm">
+							<source src="workspaces-push.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">push</h3>
+						<p>The new workspace slides in over the old one, which drifts back, like a card put on a stack.</p>
+<pre><code>@include "ws-direction/push.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-fold">
+					<div class="frame demo" data-file="workspaces-fold.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-fold.png" width="1720" height="1100" aria-label="The fold style">
+							<source src="workspaces-fold.webm" type="video/webm">
+							<source src="workspaces-fold.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">fold</h3>
+						<p>The old workspace folds into one edge while the new one unfolds from the other, like a flat cube turning.</p>
+<pre><code>@include "ws-direction/fold.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-cube">
+					<div class="frame demo" data-file="workspaces-cube.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-cube.png" width="1720" height="1100" aria-label="The cube style">
+							<source src="workspaces-cube.webm" type="video/webm">
+							<source src="workspaces-cube.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">cube</h3>
+						<p>The workspaces are the sides of a box that turns, seen in perspective. A switch that passes workspaces turns past them.</p>
+<pre><code>@include "ws-direction/cube.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-flip">
+					<div class="frame demo" data-file="workspaces-flip.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-flip.png" width="1720" height="1100" aria-label="The flip style">
+							<source src="workspaces-flip.webm" type="video/webm">
+							<source src="workspaces-flip.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">flip</h3>
+						<p>The workspace turns over like a card, with the new one on its back.</p>
+<pre><code>@include "ws-direction/flip.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-cascade">
+					<div class="frame demo" data-file="workspaces-cascade.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-cascade.png" width="1720" height="1100" aria-label="The cascade style">
+							<source src="workspaces-cascade.webm" type="video/webm">
+							<source src="workspaces-cascade.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">cascade</h3>
+						<p>The old workspace slides out in one piece; the new windows follow one after another and land together.</p>
+<pre><code>@include "ws-direction/cascade.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-warp">
+					<div class="frame demo" data-file="workspaces-warp.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-warp.png" width="1720" height="1100" aria-label="The warp style">
+							<source src="workspaces-warp.webm" type="video/webm">
+							<source src="workspaces-warp.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">warp</h3>
+						<p>The old workspace sinks into a point on one side of the middle of the monitor; then the new one bursts out of a point on the other side.</p>
+<pre><code>@include "ws-direction/warp.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-zoom-pan">
+					<div class="frame demo" data-file="workspaces-zoom-pan.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-zoom-pan.png" width="1720" height="1100" aria-label="The zoom-pan style">
+							<source src="workspaces-zoom-pan.webm" type="video/webm">
+							<source src="workspaces-zoom-pan.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">zoom-pan</h3>
+						<p>The view zooms out, pans to the new workspace and zooms back in, as if the workspaces were tiles side by side.</p>
+<pre><code>@include "ws-direction/zoom-pan.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-ink">
+					<div class="frame demo" data-file="workspaces-ink.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-ink.png" width="1720" height="1100" aria-label="The ink style">
+							<source src="workspaces-ink.webm" type="video/webm">
+							<source src="workspaces-ink.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">ink</h3>
+						<p>The old windows drain into blocks of their own colour, which fade; the new ones come as blocks, and their content comes out of the middle. New, not in a release yet.</p>
+<pre><code>@include "ws-direction/ink.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-paper">
+					<div class="frame demo" data-file="workspaces-paper.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-paper.png" width="1720" height="1100" aria-label="The paper style">
+							<source src="workspaces-paper.webm" type="video/webm">
+							<source src="workspaces-paper.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">paper</h3>
+						<p>The workspace slides away like a sheet of paper on a desk, leaning into the way it goes, and the new one slides in behind it. New, not in a release yet.</p>
+<pre><code>@include "ws-direction/paper.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-pop">
+					<div class="frame demo" data-file="workspaces-pop.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-pop.png" width="1720" height="1100" aria-label="The pop style">
+							<source src="workspaces-pop.webm" type="video/webm">
+							<source src="workspaces-pop.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">pop</h3>
+						<p>The old windows shrink into their middles and fade; the new ones pop out of theirs. New, not in a release yet.</p>
+<pre><code>@include "ws-direction/pop.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-twirl">
+					<div class="frame demo" data-file="workspaces-twirl.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-twirl.png" width="1720" height="1100" aria-label="The twirl style">
+							<source src="workspaces-twirl.webm" type="video/webm">
+							<source src="workspaces-twirl.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">twirl</h3>
+						<p>The old windows spin out with a quarter turn as they shrink and fade; the new ones spin in, the same way round. New, not in a release yet.</p>
+<pre><code>@include "ws-direction/twirl.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-wipe">
+					<div class="frame demo" data-file="workspaces-wipe.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="workspaces-wipe.png" width="1720" height="1100" aria-label="The wipe style">
+							<source src="workspaces-wipe.webm" type="video/webm">
+							<source src="workspaces-wipe.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h3 class="mono">wipe</h3>
+						<p>Nothing moves: an edge sweeps across the monitor and uncovers the new workspace.</p>
+<pre><code>@include "ws-direction/wipe.conf"</code></pre>
+					</figcaption>
+				</figure>
+			</div>
+			<div class="text">
+				<p class="note">Recorded at 60 fps on my real screen, on a 16:9 monitor beside a vertical one, each window in a colour of its own: the vertical monitor switches to another workspace and back, then the landscape one. Pauses between switches are trimmed to the same length; the animations themselves are unedited.</p>
+				<p>Each style sets <code>var-length</code>, in seconds; make it larger for a slower switch. By default the workspaces lie along the short side of each monitor: up and down on a landscape monitor, sideways on a portrait one.</p>
+			</div>
+		</section>
+
+		<section id="more" class="text">
+			<h2>More styles</h2>
+			<p>Not recorded yet. Each is picked the same way, by its name in the <code>@include</code> line. In every switch style, a switch that passes workspaces shows them on the way: going from 1 to 4, the windows of 2 and 3 come by.</p>
+			<dl>
+				<dt><code>pass-slide</code>, <code>pass-zoom-pan</code></dt>
+				<dd>Like slide and zoom-pan, but each workspace a switch passes adds a fifth of <code>var-length</code>, so a long switch doesn't become a blur.</dd>
+				<dt><code>pass-zoom-cascade</code></dt>
+				<dd>pass-zoom-pan, but the windows of the new workspace trail behind it one after another and land as the view zooms back in.</dd>
+			</dl>
+			<p class="note">Cube, flip, paper and twirl are best with picom's glx or egl backend. xrender draws them too, but slower, and squeezed text can shimmer.</p>
+		</section>
+
+		<section id="overview" class="text">
+			<h2>The overview</h2>
+			<p>A key unfolds the monitor's workspaces into a strip of tiles that fits on the monitor. The arrow keys move through them, and a click on a window picks it. There are two overview styles: <code>wall</code>, which zooms out along the strip and dims the workspaces you aren't on, and <code>unfold</code>, which opens cube's box up into a flat strip. An overview style goes in a second rule, next to the switch style:</p>
+<pre><code>rules = ({
+  match = "!override_redirect &amp;&amp; window_type = 'normal'";
+  @include "ws-direction/pass-zoom-pan.conf"
+}, {
+  match = "!override_redirect &amp;&amp; window_type = 'normal'";
+  @include "ws-direction/wall.conf"
+});</code></pre>
+			<p>The <code>ws-direction</code> command opens and closes it, from a key in i3. The lines are on the <a href="install.html#i3">Install</a> page.</p>
+		</section>
+
+		<section id="variables" class="text">
+			<h2>What your scripts get</h2>
+			<p>The plugin adds variables that scripts read like <code>window-width</code>. picom asks the plugin for their values when an animation starts, and only for scripts that use them.</p>
+			<dl>
+				<dt><code>plugin-ws-direction-direction</code></dt>
+				<dd>1 if the new workspace comes after the old one, -1 if it comes before, and 0 if the animation isn't part of a workspace switch on that monitor: a new window, the scratchpad, fullscreen, a window moved to another workspace.</dd>
+				<dt><code>plugin-ws-direction-distance</code></dt>
+				<dd>How many of the monitor's workspaces the switch moved: 1 to the next one, 2 when it passes one, and so on.</dd>
+				<dt><code>plugin-ws-direction-monitor-x</code>, <code>-y</code>, <code>-width</code>, <code>-height</code></dt>
+				<dd>The monitor that shows the window's workspace. Crop a slide to it, so it doesn't spill onto your other monitor.</dd>
+				<dt><code>-faces</code>, <code>-face</code>, <code>-index</code>, <code>-shown</code></dt>
+				<dd>How many workspaces the monitor has, how far the window's workspace is from the one the switch started on, where it is among them, and which one the monitor shows now. Styles that draw hidden workspaces, like cube, place windows by these.</dd>
+				<dt><code>-selected</code>, <code>-placed</code>, <code>-unfolded</code>, <code>-backdrop</code></dt>
+				<dd>Whether the monitor shows the focused workspace, whether the window really sits on its workspace's monitor, whether the monitor is unfolded into the overview, and whether the window is one of the plugin's backdrops.</dd>
+				<dt><code>-monitor-width-mm</code>, <code>-monitor-height-mm</code></dt>
+				<dd>The monitor's size in millimetres, so a style can set its perspective for the distance you really sit from the screen.</dd>
+			</dl>
+			<p>The plugin also starts three animation triggers of its own: <code>ws-pass</code> on every window of a monitor at a switch, so the workspaces in between can move too, and <code>ws-unfold</code> and <code>ws-fold</code> when the overview opens and closes.</p>
+			<p>A simplified part of the slide style, for a window on a landscape monitor:</p>
+<pre><code># Start one monitor height away, on the side the switch
+# came from, and move back to 0 in a quarter second.
+var-pos = {
+  duration = 0.25;
+  start = "plugin-ws-direction-direction";
+  end = 0;
+};
+offset-y = "var-pos * plugin-ws-direction-monitor-height";
+
+# Cut the window off at the edges of its own monitor,
+# so it never slides onto the other one.
+crop-x = "plugin-ws-direction-monitor-x";
+crop-y = "plugin-ws-direction-monitor-y";
+crop-width = "plugin-ws-direction-monitor-width";
+crop-height = "plugin-ws-direction-monitor-height";</code></pre>
+			<p>The full list, and how to write a style, are in the <a href="https://github.com/JornC/picom-ws-direction-plugin#readme">README</a>. Every style file explains how it works.</p>
+		</section>
+
+		<section id="how" class="text">
+			<h2>How it works</h2>
+			<p>picom knows when a window shows or hides, but not why. The plugin fills that gap from outside picom. It reads the window manager's EWMH properties (<code>_NET_CURRENT_DESKTOP</code>, <code>_NET_DESKTOP_NAMES</code> and <code>_NET_DESKTOP_VIEWPORT</code> on the root window, <code>_NET_WM_DESKTOP</code> on each window) and the monitors from RandR, and it remembers the recent switches of every monitor.</p>
+			<p>Window managers don't follow a fixed order when they change these properties and show or hide windows. So the plugin doesn't guess from single events: when a window shows or hides, it matches that to a recent switch on the window's monitor. It reads the root window at most once per picom update, however many windows start an animation in it.</p>
+			<p>To draw workspaces that aren't shown, as cube and the overview do, picom keeps the last picture of each hidden window. After picom starts, it has none until a workspace has been shown once; <code>ws-direction warm</code> shows each one briefly to fill them in.</p>
+		</section>
+
+		<section id="limits" class="text">
+			<h2>Limits</h2>
+			<ul>
+				<li>Tested with i3. The plugin uses only EWMH, so other window managers may work, but nobody has checked.</li>
+				<li>A hidden window is drawn as it looked when its workspace was last shown, and each kept picture takes as much memory as the window on screen.</li>
+				<li>When picom stops compositing for a fullscreen window (<code>unredir-if-possible</code>), it drops the kept pictures, and a switch made then has no animation. Set <code>unredir-if-possible = false</code> for the styles that draw hidden workspaces.</li>
+				<li>With picom's xrender backend, cascade can flicker: a window that is already moving in is sometimes not drawn for a frame or two. It comes from the xrender backend: glx doesn't have it, and neither does <code>use-damage = false</code>.</li>
+			</ul>
+		</section>
+	</main>
+
+	<footer class="text">
+		<p>ws-direction is licensed under the MPL-2.0. The source, the tests and the script that records the videos are on <a href="https://github.com/JornC/picom-ws-direction-plugin">GitHub</a>.</p>
+	</footer>
+</div>
+</body>
+</html>

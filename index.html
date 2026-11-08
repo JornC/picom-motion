@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>picom-motion</title>
+<meta name="description" content="Workspace and window animations for picom on X11 with i3: two plugins, their styles, and the picom changes they need.">
+<meta property="og:title" content="picom-motion">
+<meta property="og:description" content="Workspace and window animations for picom on X11 with i3: two plugins, their styles, and the picom changes they need.">
+<meta property="og:image" content="https://jornc.github.io/picom-motion/workspaces-slide.png">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Recursive:wght,MONO@300..900,0..1&amp;display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="site.js" defer></script>
+</head>
+<body>
+<nav class="bar" aria-label="Pages">
+	<ol>
+		<li><a href="index.html" aria-current="page">1:picom-motion</a></li>
+		<li><a href="workspaces.html">2:workspaces</a></li>
+		<li><a href="windows.html">3:windows</a></li>
+		<li><a href="install.html">4:install</a></li>
+		<li><a href="under-the-hood.html">5:under the hood</a></li>
+	</ol>
+	<a class="status mono" href="https://github.com/JornC/picom-motion">GitHub</a>
+</nav>
+
+<div class="page">
+	<header class="text">
+		<h1 class="mono">picom-motion</h1>
+		<p class="lede">Workspace and window animations for <a href="https://github.com/yshui/picom">picom</a> on X11, with i3: two picom plugins, their styles, and the changes to picom they need. Workspace transitions need a set of general changes to picom, two of them proposed so far; window animations need much deeper ones.</p>
+		<p class="note">It runs on my machine every day, on a fork of picom. None of it is in a picom release.</p>
+	</header>
+
+	<main>
+		<section id="note" class="text caveat">
+			<h2>A note before you read on</h2>
+			<p>picom has been built over more than twenty years by about a hundred people, from xcompmgr and compton to picom today, and its maintainers have kept it working with care for all of that time. This project is a few weeks old, and its code was written with AI. I am an experienced software engineer, but not a C programmer: AI coding agents did most of the research and the implementation. I set the goals, tested every change, judged the results on a real screen, and run it every day. That is a careful process, but it is not the same as code written by people who know picom inside out, and I don't want it taken for that.</p>
+			<p>It is also large: about 21,000 new lines next to picom's 44,000, nearly half of them tests. This is what the fork holds today, by what it is for:</p>
+			<ul>
+				<li>what every workspace switch style uses: 1,700 lines;</li>
+				<li>the 3D styles, such as the cube: 2,300;</li>
+				<li>the overview and the switches that pass workspaces: 4,300, most of it tests;</li>
+				<li>fixes for problems I ran into along the way: 1,100;</li>
+				<li>a frame timing log, used to measure all of this: 1,600;</li>
+				<li>the window animations: 10,100.</li>
+			</ul>
+			<p>None of this is decided. Whether any of it belongs in picom, in this shape or another, is for picom's maintainers to say. If they're interested, I'd start with the smallest part, offer it one or two small PRs at a time, each with its tests and a note on how it was written, and go no further than they want. Anything can be reshaped or declined, and what picom doesn't take stays in the fork.</p>
+		</section>
+		<section id="what" class="text">
+			<h2>What this is</h2>
+			<p>picom draws the animations, and its animation scripts decide how they look. But picom doesn't know about workspaces, or why a window moved; the window manager knows that. Two plugins fill that gap, on a fork of picom that adds what they need. Each change in the fork is its own commit, so picom can look at each one on its own, and take it or leave it. The two parts are of very different size.</p>
+		</section>
+
+		<section id="workspaces" class="pair">
+			<div class="text">
+				<h2>Workspace transitions: the smaller part</h2>
+				<p>A workspace switch animates the way it went, up or down, left or right, on each monitor, in a style you choose: a slide, a card push, a fold, a turning cube. The <a href="workspaces.html">ws-direction</a> plugin tells picom's animation scripts which way the switch went and where each workspace lies. It reads only the standard window manager properties (EWMH), so it isn't tied to i3.</p>
+				<p>This is the smaller part, and the one I'd ask picom about first. Every switch style uses five changes to picom:</p>
+				<ul>
+					<li>variables that plugins give animation scripts, proposed to picom as <a href="https://github.com/yshui/picom/pull/1550">#1550</a>, and a small xrender fix, <a href="https://github.com/yshui/picom/pull/1551">#1551</a>;</li>
+					<li>three fixes to script expressions;</li>
+					<li>functions in scripts, such as min, max, sin and cos;</li>
+					<li>scripts that can read the state an interrupted animation left, so a switch during a switch keeps its speed.</li>
+				</ul>
+				<p>#1550 and #1551 are open; the other three are written and tested in the fork. The 3D styles, such as the cube, also use windows drawn in perspective: three more changes. The overview, and the switches that pass several workspaces, use kept pictures of hidden windows and a few more general hooks: twelve more. If picom is interested, I'd offer them one or two at a time, with the fixes found along the way. See <a href="under-the-hood.html#backlog">the backlog</a>.</p>
+			</div>
+			<figure>
+				<div class="frame demo" data-file="workspaces-slide.webm">
+					<video class="screen" autoplay muted loop playsinline poster="workspaces-slide.png" width="1720" height="1100" aria-describedby="ws-caption">
+						<source src="workspaces-slide.webm" type="video/webm">
+						<source src="workspaces-slide.mp4" type="video/mp4">
+					</video>
+				</div>
+				<figcaption id="ws-caption">A workspace switch on two monitors under i3, in the slide style. It goes sideways on the portrait monitor and up and down on the landscape one, and back the other way. Recorded on a real screen. Pauses between switches are trimmed to the same length; the animations themselves are unedited. <a href="workspaces.html">Workspace styles</a></figcaption>
+			</figure>
+		</section>
+
+		<section id="windows" class="pair">
+			<div class="text">
+				<h2>Window animations: the hard part</h2>
+				<p>Animating the windows themselves, as they open, close, move, go fullscreen or float, is much harder. picom sees a window move, but not why. Only the window manager knows that, so the <a href="windows.html">win-cause</a> plugin talks to i3 directly: it asks i3 to say when each change is done, and gives every move its reason, so each reason can have its own animation. That ties it to i3.</p>
+				<p>The pictures are the other hard part. When a window gets a new size, its program draws the new picture a moment later, and until then picom must show something right, without stretching anything. That took deeper machinery in picom: knowing exactly when a program has drawn, waiting for a window's first picture, keeping old pictures at their own size, filling with the colour of the content, renaming moves, shows and hides, and holding animations so that the windows of one change stay on one clock.</p>
+				<p>That machinery lives in the fork. Much of it exists for one window manager's sake, so whether picom wants it is an open question. <a href="under-the-hood.html#pictures">How the pictures are kept right</a></p>
+			</div>
+			<figure>
+				<div class="frame demo" data-file="windows-tile-curved.webm">
+					<video class="screen" muted loop playsinline preload="none" poster="windows-tile-curved.png" width="1720" height="1100" aria-describedby="win-caption">
+						<source src="windows-tile-curved.webm" type="video/webm">
+						<source src="windows-tile-curved.mp4" type="video/mp4">
+					</video>
+				</div>
+				<figcaption id="win-caption">Windows that open, close, move, go fullscreen and float under i3, on a 16:9 and a 9:16 monitor, in the tile style with the curved way. Each window moves as a rectangle, on one curve and one clock with its neighbours. Its picture is never stretched. Recorded on a real screen. Pauses between steps are trimmed to the same length; the animations themselves are unedited. <a href="windows.html">Fifteen window styles</a></figcaption>
+			</figure>
+		</section>
+
+		<section id="goals" class="text">
+			<h2>Three goals</h2>
+			<ol class="parts">
+				<li><strong>Make it work now.</strong> Every workspace and window animation a user or developer might want. When something is in the way, I work around it, in the fork or in a plugin, rather than ask anyone else to hurry.</li>
+				<li><strong>Offer it where it belongs.</strong> Where a change could serve another project, picom, i3 or another window manager, or X, offer it there, and let that project decide. What is the plugins' own job stays in the plugins. The workspace transitions and the fixes would come first; the window animations stay in the fork and the plugin. The backlog shows two sides of each item: what makes it work today, and where it could go. See <a href="under-the-hood.html#backlog">the backlog</a>.</li>
+				<li><strong>Do it properly.</strong> Animations that fully work, run smoothly and are built cleanly. The owner of the machine, user or developer, chooses which animations run and how they look.</li>
+			</ol>
+		</section>
+
+		<section id="record" class="text">
+			<h2>A record of what it takes</h2>
+			<p>This site records what it took to make animations work well on X11, as far as I got. I tried what I could, down to how picom waits for the X server and the driver while it draws a frame. How the code was written is in <a href="#note">the note at the top</a>.</p>
+			<h3>What works</h3>
+			<ul>
+				<li>Workspace switches that go the right way on each monitor, styles that show the workspaces a switch passes, such as a turning cube, and an overview of all workspaces.</li>
+				<li>Window animations for every change i3 makes: open, close, fullscreen, floating, resize, swap, move and layout. The windows of one change move together, and a change during a change goes on from where everything is.</li>
+				<li>Pictures that stay right: a window switches to its new picture at a moment it can't be seen, an opening waits for the program's first picture, and windows covered by a fullscreen window stay in place.</li>
+				<li>Fewer late frames on NVIDIA, from changes to how picom binds window pictures and when it waits for the X server, and from giving picom's GPU work priority over the programs' drawing.</li>
+			</ul>
+			<h3>What X still limits</h3>
+			<ul>
+				<li>picom can't use a window's new picture until the program's GPU work on it is done, and X has no signal for when that is. On NVIDIA that wait can take tens of milliseconds.</li>
+				<li>Every frame, picom asks the X server whether it has finished drawing, and waits for the answer.</li>
+				<li>Resizing programs step by step during an animation can't be made smooth on X. I tried it and dropped it: every size in between costs the program a redraw and picom a new picture. One resize at the start, with only the box animating, is much smoother.</li>
+			</ul>
+			<p>The details and numbers are under <a href="under-the-hood.html#late-frames">Under the hood</a>.</p>
+			<h3>After this month</h3>
+			<p>I work on this actively for about a month, from November 2026. After that I keep using it and fix what I contributed, but I won't drive new features or an agenda. The fork is a place to keep changes while the projects involved look at them, at their pace, not a picom of its own. The window animations need it for as long as picom has no place for their machinery. Other window managers get support only where that is easy: ws-direction reads plain EWMH properties, while win-cause needs i3.</p>
+			<p>It is there for picom and its community to use as they see fit, and for anyone who wants to pick up a part of it.</p>
+		</section>
+	</main>
+
+	<footer class="text">
+		<p>The plugins are under the MPL-2.0. The picom fork keeps picom's own licenses (MPL-2.0 and MIT). This site's source is on <a href="https://github.com/JornC/picom-motion">GitHub</a>.</p>
+	</footer>
+</div>
+</body>
+</html>

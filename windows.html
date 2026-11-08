@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Window styles</title>
+<meta name="description" content="win-cause: a picom plugin that tells animation scripts why an i3 window moved, with its window styles.">
+<meta property="og:title" content="Window styles: win-cause">
+<meta property="og:description" content="win-cause: a picom plugin that tells animation scripts why an i3 window moved, with its window styles.">
+<meta property="og:image" content="https://jornc.github.io/picom-motion/windows-tile-curved.png">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Recursive:wght,MONO@300..900,0..1&amp;display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="site.js" defer></script>
+</head>
+<body>
+<nav class="bar" aria-label="Pages">
+	<ol>
+		<li><a href="index.html">1:picom-motion</a></li>
+		<li><a href="workspaces.html">2:workspaces</a></li>
+		<li><a href="windows.html" aria-current="page">3:windows</a></li>
+		<li><a href="install.html">4:install</a></li>
+		<li><a href="under-the-hood.html">5:under the hood</a></li>
+	</ol>
+	<a class="status mono" href="https://github.com/JornC/picom-win-cause-plugin">GitHub</a>
+</nav>
+
+<div class="page">
+	<header class="text">
+		<h1 class="mono">win-cause</h1>
+		<p class="lede">A <a href="https://github.com/yshui/picom">picom</a> plugin that tells your animation scripts why a window moved, so each reason can have its own animation.</p>
+		<p>Window animations are the hard part of this project. Only the window manager knows why a window moved, so this plugin talks to i3 directly, and works only with i3. And keeping each window's picture right while it moves took deeper machinery in picom: knowing when a program has drawn, waiting for a window's first picture, renaming moves, shows and hides, and holding animations so the windows of one change stay on one clock. That machinery lives in the picom fork. Much of it exists for one window manager's sake, so whether picom wants it is an open question. See <a href="under-the-hood.html#pictures">Under the hood</a>.</p>
+		<p class="note">It needs i3 and the picom fork; see <a href="install.html">Install</a>. The source is on <a href="https://github.com/JornC/picom-win-cause-plugin">GitHub</a>. The code was written with AI; see <a href="index.html#note">a note before you read on</a>.</p>
+	</header>
+
+	<main>
+		<section id="why" class="text">
+			<h2>Why a window moved</h2>
+			<p>picom sees a window move, but not why. Under i3 a window moves because another one opened or closed, because it went fullscreen or floating, or because you resized, swapped or moved it. win-cause follows the X events picom reads, asks i3 to say when it is done, and gives the move a name. Your script for that name decides how it looks. A window with no script for a reason gets its usual <code>geometry</code> animation.</p>
+			<dl>
+				<dt><code>moved-by-open</code>, <code>moved-by-close</code></dt>
+				<dd>Windows that moved because a new window appeared, or because one went away.</dd>
+				<dt><code>moved-by-fullscreen</code>, <code>moved-by-float</code></dt>
+				<dd>The window that went in or out of fullscreen; the window that became floating, and the windows that take its place.</dd>
+				<dt><code>covered-by-fullscreen</code>, <code>uncovered-by-fullscreen</code></dt>
+				<dd>The other windows on its workspace, which i3 hides while a window is fullscreen and shows again after. They don't go anywhere, so the styles keep them in place under the window that grows over them or turns back.</dd>
+				<dt>Any name you choose</dt>
+				<dd>For what i3 doesn't announce, a key binding names the reason: <code>win-cause run flip -- i3-msg swap container with mark swap</code>. Every window that command moves starts the trigger <code>flip</code>.</dd>
+			</dl>
+			<p>For a window that opens or closes, the plugin also tells the script where it splits from its neighbours, so it can grow out of that line and go back into it. picom itself stays neutral: it only sees trigger names. Neither i3 nor picom knows what a card flip is.</p>
+		</section>
+
+		<section id="setup" class="text">
+			<h2>Setup</h2>
+			<p>The tile styles go in two rules in <code>picom.conf</code>:</p>
+<pre><code>plugins = ["win-cause.so"];
+rules = ({
+  match = "!override_redirect &amp;&amp; window_type = 'normal'";
+  @include "win-cause/tile.conf"
+}, {
+  match = "!override_redirect &amp;&amp; window_type = 'normal' &amp;&amp; !I3_FLOATING_WINDOW@";
+  @include "win-cause/tile-geometry.conf"
+});</code></pre>
+			<p>The first rule has the named reasons, and the opening and closing window, for every window: a window that turns floating is already floating when it moves. The second has the same motion for moves the plugin can't name (resize, swap, move, layout, floating off), but leaves floating windows out, so dragging one with the mouse isn't slowed down. Every other style below goes in the same two rules, with its own files in place of tile's.</p>
+			<p>Settings are in the style's <code>parts/tile.conf</code>. To change one, copy that file to <code>~/.config/picom/win-cause/parts/tile.conf</code>: picom looks there first, and <code>make install</code> doesn't write there. Save <code>picom.conf</code> once afterwards, so picom reads the copy.</p>
+		</section>
+
+		<section id="styles">
+			<div class="text">
+				<h2>Styles</h2>
+				<p>Every video plays the same session on a 16:9 monitor beside a vertical one: windows open one by one, the browser widens, swaps sides, goes fullscreen and back, a terminal floats and comes back, the layout turns, the browser moves to the vertical monitor, both monitors switch workspace and back, and everything closes again. Each style comes with a workspace switch from <a href="workspaces.html">ws-direction</a> in the same spirit.</p>
+				<p class="note">Recorded at 60 fps on a real NVIDIA screen, each demo window in a colour of its own. Pauses between steps are trimmed to the same length; the animations themselves are unedited.</p>
+			</div>
+			<div class="text">
+				<h3 id="styles-tile">Tile</h3>
+				<p>The style in daily use. Each window moves as a rectangle, all windows of a change on one curve and one clock.</p>
+			</div>
+			<div class="gallery wide">
+				<figure id="style-tile-straight">
+					<div class="frame demo" data-file="windows-tile-straight.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-tile-straight.png" width="1720" height="1100" aria-label="The tile style">
+							<source src="windows-tile-straight.webm" type="video/webm">
+							<source src="windows-tile-straight.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">tile</h4>
+						<p>Each rectangle goes the straight way to its new place, easing in and out. A picture is never stretched. Workspaces: slide.</p>
+<pre><code># the two rules of Setup
+@include "win-cause/tile.conf"
+@include "win-cause/tile-geometry.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-tile-curved">
+					<div class="frame demo" data-file="windows-tile-curved.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-tile-curved.png" width="1720" height="1100" aria-label="The tile, curved style">
+							<source src="windows-tile-curved.webm" type="video/webm">
+							<source src="windows-tile-curved.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">tile, curved</h4>
+						<p>Windows that trade places pass each other instead of through each other: they curve around where their old and new places overlap, and lift off their way where they don't. Workspaces: cube with six sides, a copy of cube.conf with three settings changed.</p>
+<pre><code># your copy of win-cause/parts/tile.conf
+var-path = 1;
+var-lift = 0.08;
+
+# your copy of ws-direction/cube.conf, in each of its parts
+var-sides = "max(6, plugin-ws-direction-faces)";
+var-fit = 0.2;
+var-length = 0.32;</code></pre>
+					</figcaption>
+				</figure>
+			</div>
+			<div class="text">
+				<h3 id="styles-themed">Themed</h3>
+				<p>One idea carried through every change: moving, opening, closing, fullscreen and the move to another monitor.</p>
+			</div>
+			<div class="gallery wide">
+				<figure id="style-ink">
+					<div class="frame demo" data-file="windows-ink.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-ink.png" width="1720" height="1100" aria-label="The ink style">
+							<source src="windows-ink.webm" type="video/webm">
+							<source src="windows-ink.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">ink</h4>
+						<p>While a window moves it becomes a block of its own median colour, which for most windows is their background's; its content comes back at the new place. A solid colour has nothing to stretch. Workspaces: ink.</p>
+<pre><code># the two rules of Setup, with
+@include "win-cause/ink.conf"
+@include "win-cause/ink-geometry.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-origami">
+					<div class="frame demo" data-file="windows-origami.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-origami.png" width="1720" height="1100" aria-label="The origami style">
+							<source src="windows-origami.webm" type="video/webm">
+							<source src="windows-origami.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">origami</h4>
+						<p>Windows turn like hinged panels: a window that changes size turns half a turn, a swap folds over the line between the two places, and a window unfolds when it opens and folds away when it closes. Workspaces: cube.</p>
+<pre><code># the two rules of Setup, with
+@include "win-cause/origami.conf"
+@include "win-cause/origami-geometry.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-cube">
+					<div class="frame demo" data-file="windows-cube.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-cube.png" width="1720" height="1100" aria-label="The cube style">
+							<source src="windows-cube.webm" type="video/webm">
+							<source src="windows-cube.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">cube</h4>
+						<p>Windows are the sides of boxes: they tip over their edges to move, turn into view and away, and a swap folds the pair round a corner. Workspaces: cube.</p>
+<pre><code># the two rules of Setup, with
+@include "win-cause/cube.conf"
+@include "win-cause/cube-geometry.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-paper">
+					<div class="frame demo" data-file="windows-paper.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-paper.png" width="1720" height="1100" aria-label="The paper style">
+							<source src="windows-paper.webm" type="video/webm">
+							<source src="windows-paper.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">paper</h4>
+						<p>Like paper on a desk: windows tilt into their motion, drop in swinging from their top edge, and tip over and fall away when they close. Workspaces: paper.</p>
+<pre><code># the two rules of Setup, with
+@include "win-cause/paper.conf"
+@include "win-cause/paper-geometry.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-cards">
+					<div class="frame demo" data-file="windows-cards.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-cards.png" width="1720" height="1100" aria-label="The cards style">
+							<source src="windows-cards.webm" type="video/webm">
+							<source src="windows-cards.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">cards</h4>
+						<p>A deck of cards: windows lift and slide, swap by turning over, are dealt in from a corner and slide away face down. Workspaces: push.</p>
+<pre><code># the two rules of Setup, with
+@include "win-cause/cards.conf"
+@include "win-cause/cards-geometry.conf"
+# and the swap rule and key of card flip</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-step-back">
+					<div class="frame demo" data-file="windows-step-back.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-step-back.png" width="1720" height="1100" aria-label="The step back style">
+							<source src="windows-step-back.webm" type="video/webm">
+							<source src="windows-step-back.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">step back</h4>
+						<p>The windows of a monitor shrink together, rearrange, and come back, like a camera pulling back for a moment. Workspaces: zoom-pan.</p>
+<pre><code># the two rules of Setup, with
+@include "win-cause/step-back.conf"
+@include "win-cause/step-back-geometry.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-domino">
+					<div class="frame demo" data-file="windows-domino.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-domino.png" width="1720" height="1100" aria-label="The domino style">
+							<source src="windows-domino.webm" type="video/webm">
+							<source src="windows-domino.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">domino</h4>
+						<p>Every change ripples through the windows from left to right, each starting a little after its neighbour. Workspaces: cascade.</p>
+<pre><code># the two rules of Setup, with
+@include "win-cause/domino.conf"
+@include "win-cause/domino-geometry.conf"</code></pre>
+					</figcaption>
+				</figure>
+			</div>
+			<div class="text">
+				<h3 id="styles-tile-variants">Tile variants</h3>
+				<p>Tile's moves, with a different open, close or swap.</p>
+			</div>
+			<div class="gallery wide">
+				<figure id="style-flip">
+					<div class="frame demo" data-file="windows-flip.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-flip.png" width="1720" height="1100" aria-label="The card flip style">
+							<source src="windows-flip.webm" type="video/webm">
+							<source src="windows-flip.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">card flip</h4>
+						<p>Swapped windows turn over like cards and land on each other's side. Workspaces: flip.</p>
+<pre><code># tile's two rules, and a rule of its own
+animation-triggers = ["flip"];
+rules = (..., {
+  match = "!override_redirect &amp;&amp; window_type = 'normal'";
+  animations = ({ @include "win-cause/flip.conf" });
+});
+
+# i3 config: mark one window, then swap with it
+bindsym $mod+m mark --toggle swap
+bindsym $mod+s exec --no-startup-id win-cause run flip -- i3-msg swap container with mark swap</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-spring">
+					<div class="frame demo" data-file="windows-spring.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-spring.png" width="1720" height="1100" aria-label="The spring style">
+							<source src="windows-spring.webm" type="video/webm">
+							<source src="windows-spring.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">spring</h4>
+						<p>Moves go a little past their place and settle back, on a damped spring. Opening and closing windows grow and shrink on the same spring. Workspaces: push.</p>
+<pre><code># the two rules of Setup, with
+@include "win-cause/spring.conf"
+@include "win-cause/spring-geometry.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-pop">
+					<div class="frame demo" data-file="windows-pop.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-pop.png" width="1720" height="1100" aria-label="The pop style">
+							<source src="windows-pop.webm" type="video/webm">
+							<source src="windows-pop.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">pop</h4>
+						<p>Windows grow out of their middle when they open and shrink into it when they close. Workspaces: pop.</p>
+<pre><code># the first rule of Setup, with
+@include "win-cause/pop.conf"
+# the second keeps tile-geometry.conf</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-fold">
+					<div class="frame demo" data-file="windows-fold.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-fold.png" width="1720" height="1100" aria-label="The fold style">
+							<source src="windows-fold.webm" type="video/webm">
+							<source src="windows-fold.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">fold</h4>
+						<p>Windows unfold from their split line when they open and fold away into it when they close. Workspaces: fold.</p>
+<pre><code># the first rule of Setup, with
+@include "win-cause/fold.conf"
+# the second keeps tile-geometry.conf</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-warp">
+					<div class="frame demo" data-file="windows-warp.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-warp.png" width="1720" height="1100" aria-label="The warp style">
+							<source src="windows-warp.webm" type="video/webm">
+							<source src="windows-warp.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">warp</h4>
+						<p>A moving window sinks into its old place and bursts out at its new one. Workspaces: warp.</p>
+<pre><code># the two rules of Setup, with
+@include "win-cause/warp.conf"
+@include "win-cause/warp-geometry.conf"</code></pre>
+					</figcaption>
+				</figure>
+				<figure id="style-twirl">
+					<div class="frame demo" data-file="windows-twirl.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="windows-twirl.png" width="1720" height="1100" aria-label="The twirl style">
+							<source src="windows-twirl.webm" type="video/webm">
+							<source src="windows-twirl.mp4" type="video/mp4">
+						</video>
+					</div>
+					<figcaption>
+						<h4 class="mono">twirl</h4>
+						<p>Windows spin in when they open and spin out when they close. Workspaces: twirl.</p>
+<pre><code># the first rule of Setup, with
+@include "win-cause/twirl.conf"
+# the second keeps tile-geometry.conf</code></pre>
+					</figcaption>
+				</figure>
+			</div>
+		</section>
+
+		<section id="tile" class="text">
+			<h2>How tile draws a window</h2>
+			<ul>
+				<li>Each window of a change has a rectangle that goes from where the window was to where it is. All of them move on one curve, at one time, and start and end without speed. An edge two windows share stays shared, so the gap a window leaves closes as it goes, and nothing overlaps.</li>
+				<li>i3's border or title bar, when the window has one, is drawn on the rectangle's edges in every frame, never stretched across it.</li>
+				<li>The content is never scaled or blended. It is drawn at its own size and cut where it is larger than the rectangle. The part it doesn't cover is filled with the median colour of the content, which for most windows is exactly their background's, so a terminal's rectangle is dark and a white page's is white.</li>
+				<li>Under the rectangle sits a backdrop in that colour, so while it moves, a program that hasn't drawn its new size yet doesn't show what lies behind it.</li>
+				<li>A window that opens waits until its program has drawn a first picture with content, and the windows that make room for it wait with it. Then they all start together, so no part of the animation runs while there is nothing to show.</li>
+				<li>A window that opens grows out of the line it split from, while its neighbours make room on the same curve. A window that closes goes back into its line, and its place is cut where the windows that take it reach, so no part of it shows what lies behind.</li>
+				<li>A change that comes while one runs goes on from where every rectangle is, with the speed it has. No window jumps in front of another while they pass.</li>
+			</ul>
+			<h3>Main settings</h3>
+			<dl>
+				<dt><code>var-length</code> (0.25)</dt>
+				<dd>How long a change takes, in seconds.</dd>
+				<dt><code>var-ease</code></dt>
+				<dd>The curve. One that starts and ends without speed keeps the motion smooth where changes meet.</dd>
+				<dt><code>var-path</code> (0) and <code>var-lift</code> (0.08)</dt>
+				<dd>The straight or the curved way, and how far a window lifts off its way in a swap.</dd>
+				<dt><code>var-interrupt</code> (1)</dt>
+				<dd>A change during a change: 1 keeps each rectangle's speed, 0 starts the curve again from where it is.</dd>
+				<dt><code>var-picture</code> (<code>var-picture-best</code>)</dt>
+				<dd>Which picture a moving window shows: 1 the one it had when the change started, 0 its newest. By default whichever covers more of the rectangle, so a window that grows shows its new picture as soon as it is drawn, and one that shrinks keeps its old picture, cut by the rectangle, until it lands.</dd>
+				<dt><code>var-fill</code> (1) and <code>var-backdrop</code> (1)</dt>
+				<dd>How much of the fill and of the backdrop is drawn: 0 lets what lies behind show.</dd>
+			</dl>
+			<p>The full list is in the <a href="https://github.com/JornC/picom-win-cause-plugin#readme">README</a>.</p>
+		</section>
+
+		<section id="limits" class="text">
+			<h2>Limits</h2>
+			<ul>
+				<li>Needs i3: the plugin asks i3 to say when a change is done, which other window managers don't answer.</li>
+				<li>i3 gives each window its new size at the start of a change, so a program lays out its content for the end size at once. The style cuts or fills the picture to fit the rectangle. Resizing step by step during the animation was tried and dropped; see <a href="under-the-hood.html#dropped">Under the hood</a>.</li>
+				<li>Resize, swap, move, layout changes and floating off show nothing beforehand, so they keep <code>geometry</code>, unless <code>win-cause run</code> names them.</li>
+				<li>An opening starts when the program has drawn, so a slow program opens late: on the recording's NVIDIA screen a terminal took 0.4 to 0.8 s from launch to its first picture, Chrome 1.2 to 2 s.</li>
+				<li>The first change after picom reloads its config gets no name.</li>
+			</ul>
+		</section>
+	</main>
+
+	<footer class="text">
+		<p>win-cause is licensed under the MPL-2.0. The source and the tests are on <a href="https://github.com/JornC/picom-win-cause-plugin">GitHub</a>.</p>
+	</footer>
+</div>
+</body>
+</html>

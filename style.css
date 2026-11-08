@@ -1,0 +1,278 @@
+:root {
+	--paper: #eef0f3;
+	--ink: #1c2230;
+	--muted: #586172;
+	--line: #d3d8e0;
+	--code-bg: #e2e6ec;
+	--bar: #15171c;
+	--bar-text: #8a909c;
+	--focus: #3d7bd9;
+	--link: #2a62b8;
+	--tag-bg: #dfe4eb;
+	--tag-done: #1f7a4d;
+	--tag-open: #2a62b8;
+	--tag-fork: #8a5a00;
+	--tag-dropped: #6b6f78;
+	color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--paper: #1d222b;
+		--ink: #e4e8ee;
+		--muted: #9aa3b2;
+		--line: #343b47;
+		--code-bg: #262c37;
+		--link: #7fa9ec;
+		--tag-bg: #2a313d;
+		--tag-done: #6cc79a;
+		--tag-open: #7fa9ec;
+		--tag-fork: #e0b45c;
+		--tag-dropped: #9aa3b2;
+		color-scheme: dark;
+	}
+}
+@media (prefers-reduced-motion: no-preference) {
+	html { scroll-behavior: smooth; }
+}
+
+* { box-sizing: border-box; }
+body {
+	margin: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font-family: "Recursive", system-ui, sans-serif;
+	font-variation-settings: "MONO" 0;
+	font-size: 1.0625rem;
+	line-height: 1.6;
+	overflow-wrap: break-word;
+}
+a { color: var(--link); text-underline-offset: 0.15em; }
+a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+code, pre, .mono {
+	font-family: "Recursive", ui-monospace, "DejaVu Sans Mono", monospace;
+	font-variation-settings: "MONO" 1;
+}
+code { font-size: 0.92em; }
+:not(pre) > code { overflow-wrap: anywhere; }
+@media (min-width: 40rem) {
+	:not(pre) > code { white-space: nowrap; overflow-wrap: normal; }
+}
+
+/* The navigation is an i3bar: pages are workspaces, the one you are on is focused. */
+.bar {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	display: flex;
+	align-items: stretch;
+	justify-content: space-between;
+	gap: 1rem;
+	background: var(--bar);
+	font-size: 0.8125rem;
+	line-height: 1;
+}
+.bar ol {
+	display: flex;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	overflow-x: auto;
+	scrollbar-width: none;
+}
+.bar ol li { margin: 0; }
+.bar ol a {
+	display: block;
+	padding: 0.5rem 0.65rem;
+	color: var(--bar-text);
+	text-decoration: none;
+	white-space: nowrap;
+}
+.bar ol a:hover { color: #ffffff; }
+.bar ol a[aria-current] { background: var(--focus); color: #ffffff; }
+.bar ol a:focus-visible { outline-offset: -2px; outline-color: #ffffff; border-radius: 0; }
+.bar .status {
+	display: flex;
+	align-items: center;
+	padding: 0 0.75rem;
+	color: var(--bar-text);
+	white-space: nowrap;
+}
+.bar .status:hover { color: #ffffff; }
+@media (max-width: 34rem) {
+	.bar .status { display: none; }
+}
+
+.page {
+	max-width: 71rem;
+	margin: 0 auto;
+	padding: 0 1rem 4rem;
+}
+.text { max-width: 40rem; }
+
+header { padding: 3.5rem 0 2rem; }
+h1 {
+	margin: 0 0 0.75rem;
+	font-size: clamp(2.25rem, 4vw + 1.25rem, 4.25rem);
+	font-weight: 800;
+	line-height: 1;
+	letter-spacing: -0.03em;
+}
+.lede { margin: 0; font-size: 1.25rem; line-height: 1.5; color: var(--ink); }
+header .note { margin: 0.75rem 0 0; }
+header .lede + p:not(.note) { margin: 1rem 0 0; }
+
+figure { margin: 0; }
+/* A video sits in a frame. If the video can't load, the frame says which file it waits for. */
+.frame {
+	position: relative;
+	aspect-ratio: 1130 / 480;
+	background: #000000;
+	border-radius: 6px;
+	overflow: hidden;
+}
+.frame::before {
+	content: "Not recorded yet: " attr(data-file);
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	padding: 1rem;
+	color: #8a909c;
+	font-size: 0.875rem;
+	text-align: center;
+}
+/* The window demos: a 16:9 and a 9:16 monitor side by side; the area outside them is see-through. */
+.frame.demo { aspect-ratio: 1720 / 1100; background: transparent; }
+.frame.demo::before { content: ""; }
+.screen {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: transparent;
+}
+figcaption { margin-top: 0.75rem; color: var(--muted); font-size: 0.9375rem; }
+
+section { padding-top: 3rem; }
+main [id] { scroll-margin-top: 2.5rem; }
+h2 {
+	margin: 0 0 0.75rem;
+	font-size: 1.5rem;
+	font-weight: 700;
+	line-height: 1.25;
+	letter-spacing: -0.01em;
+}
+h3 {
+	margin: 1.5rem 0 0.5rem;
+	font-size: 1.125rem;
+	font-weight: 700;
+}
+p { margin: 0 0 1rem; }
+.note { color: var(--muted); font-size: 0.9375rem; }
+
+.pair {
+	display: grid;
+	gap: 2rem 1.5rem;
+	grid-template-columns: repeat(auto-fit, minmax(min(26rem, 100%), 1fr));
+	margin-top: 1.5rem;
+}
+.pair figcaption { max-width: 40rem; }
+
+.gallery {
+	display: grid;
+	gap: 2.5rem 1.5rem;
+	grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+	margin-top: 1.5rem;
+}
+.gallery.wide { grid-template-columns: repeat(auto-fit, minmax(min(26rem, 100%), 1fr)); }
+.gallery h3, .gallery h4 { margin: 0.75rem 0 0.25rem; font-size: 1.125rem; font-weight: 700; }
+.gallery figcaption { margin-top: 0; }
+.gallery figcaption p { margin: 0 0 0.5rem; }
+.gallery pre { margin: 0.5rem 0 0; font-size: 0.8125rem; }
+
+.parts { padding-left: 1.25rem; }
+.parts li { margin-bottom: 1rem; padding-left: 0.25rem; }
+.parts strong { font-weight: 700; }
+
+dl { margin: 1.25rem 0; }
+dt { font-weight: 600; }
+dt code { font-size: 0.95rem; }
+dd { margin: 0.25rem 0 1.25rem; }
+
+pre {
+	margin: 0 0 1rem;
+	padding: 1rem 1.25rem;
+	background: var(--code-bg);
+	border-radius: 6px;
+	overflow-x: auto;
+	font-size: 0.875rem;
+	line-height: 1.55;
+}
+.step-list { padding-left: 1.25rem; }
+.step-list > li { margin-bottom: 1.5rem; padding-left: 0.25rem; }
+.step-list pre { margin-top: 0.5rem; }
+ul { padding-left: 1.25rem; }
+ul li { margin-bottom: 0.5rem; }
+
+/* The backlog: a table on wide screens, one block per item on narrow ones. */
+.backlog {
+	width: 100%;
+	margin: 1rem 0 0;
+	border-collapse: collapse;
+	font-size: 0.9375rem;
+	line-height: 1.5;
+}
+.backlog th, .backlog td {
+	padding: 0.6rem 0.75rem 0.6rem 0;
+	border-bottom: 1px solid var(--line);
+	text-align: left;
+	vertical-align: top;
+}
+.backlog thead th { color: var(--muted); font-weight: 600; font-size: 0.8125rem; }
+.backlog tbody th[colspan] {
+	padding-top: 1.75rem;
+	font-size: 1.0625rem;
+	font-weight: 700;
+	border-bottom: 2px solid var(--line);
+}
+.backlog td:first-child { width: 34%; }
+.backlog td:last-child { width: 9rem; }
+@media (max-width: 52rem) {
+	.backlog thead { display: none; }
+	.backlog, .backlog tbody, .backlog tr, .backlog td, .backlog th { display: block; width: auto; }
+	.backlog td:first-child, .backlog td:last-child { width: auto; }
+	.backlog tr { padding: 0.75rem 0; border-bottom: 1px solid var(--line); }
+	.backlog td { padding: 0.15rem 0; border: 0; }
+	.backlog td[data-label]::before {
+		content: attr(data-label) ": ";
+		color: var(--muted);
+		font-weight: 600;
+	}
+	.backlog tbody th[colspan] { border-bottom: 0; padding-top: 1.5rem; }
+}
+
+.tag {
+	display: inline-block;
+	padding: 0.1rem 0.45rem;
+	border-radius: 4px;
+	background: var(--tag-bg);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	white-space: nowrap;
+}
+.tag.done { color: var(--tag-done); }
+.tag.open { color: var(--tag-open); }
+.tag.fork { color: var(--tag-fork); }
+.tag.dropped { color: var(--tag-dropped); }
+
+footer {
+	margin-top: 4rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--line);
+	color: var(--muted);
+	font-size: 0.9375rem;
+}
+
+/* The note at the top of the home page: framed, so nobody reads past it. */
+section.caveat { margin-top: 0.5rem; padding: 1.25rem 1.5rem 0.5rem; border: 1px solid var(--line); border-left: 4px solid var(--tag-fork); border-radius: 6px; background: var(--code-bg); }
+section.caveat h2 { margin-top: 0; }
