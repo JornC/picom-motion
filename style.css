@@ -449,3 +449,9 @@ button.plain:hover { background: var(--code-bg); }
 	.facts { grid-template-columns: auto minmax(0, 1fr); }
 	.commits li { overflow-wrap: anywhere; }
 }
+
+/* Phones: every tab stays in view, on a second row if needed, and long code lines wrap instead of hiding. */
+@media (max-width: 34rem) {
+	.bar ol { flex-wrap: wrap; overflow-x: visible; }
+	pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+}
