@@ -37,14 +37,14 @@
 
 	<main class="text">
 		<section id="arch">
-			<h2>On Arch Linux</h2>
+			<h2>On Arch Linux<a class="anchor" href="#arch" aria-label="Link to this section">#</a></h2>
 			<p>The AUR package <a href="https://aur.archlinux.org/packages/picom-motion-git">picom-motion-git</a> builds the fork and both plugins from these repositories, and takes the place of steps 1 to 3:</p>
 <pre><code>yay -S picom-motion-git</code></pre>
 			<p>It replaces Arch's picom, and puts the plugins where picom finds them by name, the styles in <code>/etc/xdg/picom/include/</code>, and the <code>ws-direction</code> and <code>win-cause</code> commands in <code>/usr/bin</code>. Then go on with <a href="#picom-conf">4. picom.conf</a>. Problems with the package go to <a href="https://github.com/JornC/picom-motion/issues">this site's repository</a>, not to picom. Back to picom: <code>sudo pacman -S picom</code>.</p>
 		</section>
 
 		<section id="needs">
-			<h2>What you need</h2>
+			<h2>What you need<a class="anchor" href="#needs" aria-label="Link to this section">#</a></h2>
 			<ul>
 				<li>X11 and a stock i3.</li>
 				<li>A GPU with OpenGL and EGL, for picom's <code>egl</code> backend. glx works too, and draws the same; egl is the one used and measured, because it can give picom's GPU work priority over the programs' drawing.</li>
@@ -55,7 +55,7 @@
 		</section>
 
 		<section id="picom">
-			<h2>1. The picom fork</h2>
+			<h2>1. The picom fork<a class="anchor" href="#picom" aria-label="Link to this section">#</a></h2>
 			<p>The <code>winanim</code> branch: picom's development branch with the plugin API and the other changes on top.</p>
 <pre><code>git clone --branch winanim https://github.com/JornC/picom.git
 cd picom
@@ -67,7 +67,7 @@ sudo ninja -C build install</code></pre>
 		</section>
 
 		<section id="ws-direction">
-			<h2>2. ws-direction</h2>
+			<h2>2. ws-direction<a class="anchor" href="#ws-direction" aria-label="Link to this section">#</a></h2>
 <pre><code>git clone https://github.com/JornC/picom-ws-direction-plugin.git
 cd picom-ws-direction-plugin
 make PICOM_API_CFLAGS=-I../picom/include
@@ -76,7 +76,7 @@ make install PICOM_API_CFLAGS=-I../picom/include</code></pre>
 		</section>
 
 		<section id="win-cause">
-			<h2>3. win-cause</h2>
+			<h2>3. win-cause<a class="anchor" href="#win-cause" aria-label="Link to this section">#</a></h2>
 <pre><code>git clone https://github.com/JornC/picom-win-cause-plugin.git
 cd picom-win-cause-plugin
 make PICOM_API_CFLAGS=-I../picom/include
@@ -85,7 +85,7 @@ make install PICOM_API_CFLAGS=-I../picom/include</code></pre>
 		</section>
 
 		<section id="picom-conf">
-			<h2>4. picom.conf</h2>
+			<h2>4. picom.conf<a class="anchor" href="#picom-conf" aria-label="Link to this section">#</a></h2>
 			<p>A workspace style, the overview, and the tile style for windows:</p>
 <pre><code># egl asks the GPU to put picom's frames before the programs' drawing.
 backend = "egl";
@@ -112,7 +112,7 @@ rules = ({
 		</section>
 
 		<section id="i3">
-			<h2>5. The i3 config</h2>
+			<h2>5. The i3 config<a class="anchor" href="#i3" aria-label="Link to this section">#</a></h2>
 			<p>Start picom and bind the overview:</p>
 <pre><code># Start picom, then fill in the pictures of hidden workspaces.
 exec_always --no-startup-id picom -b &amp;&amp; ws-direction warm
@@ -134,7 +134,7 @@ mode "overview" {
 		</section>
 
 		<section id="nvidia">
-			<h2>6. NVIDIA: turn OpenGL flipping off</h2>
+			<h2>6. NVIDIA: turn OpenGL flipping off<a class="anchor" href="#nvidia" aria-label="Link to this section">#</a></h2>
 <pre><code>nvidia-settings -n -a AllowFlipping=0</code></pre>
 			<p>With two monitors at different rates on one X screen (here 175 Hz and 60 Hz), the driver's OpenGL flipping made picom's frames wait for the 60 Hz monitor, whatever picom's own vsync setting was. With flipping off, frames came at 175 Hz again, and late frames fell from about 26% to 10%. The numbers are under <a href="under-the-hood.html#flipping">Under the hood</a>.</p>
 			<p>It is a driver setting for every OpenGL program, not only picom, and <code>-n</code> doesn't save it, so run it each time before picom starts. Check for tearing on every monitor, and in fullscreen games. My i3 line, used instead of the first picom line above, also syncs picom to the fast monitor (DFP-1, as <code>nvidia-settings</code> names it):</p>
@@ -143,7 +143,7 @@ mode "overview" {
 		</section>
 
 		<section id="check">
-			<h2>Check that it works</h2>
+			<h2>Check that it works<a class="anchor" href="#check" aria-label="Link to this section">#</a></h2>
 			<ul>
 				<li><code>picom --diagnostics</code> lists <code>ws-pass</code>, <code>ws-unfold</code> and <code>ws-fold</code> under "Custom animation triggers" when picom loaded ws-direction.</li>
 				<li><code>ws-direction --version</code> prints the version, and shows that the command is on your PATH.</li>
@@ -153,7 +153,7 @@ mode "overview" {
 		</section>
 
 		<section id="status">
-			<h2>What is checked</h2>
+			<h2>What is checked<a class="anchor" href="#status" aria-label="Link to this section">#</a></h2>
 			<ul>
 				<li><strong>In daily use:</strong> my machine. Arch Linux, NVIDIA, stock i3, two monitors, egl, with the AUR package picom-motion-git.</li>
 				<li><strong>The AUR package</strong> builds from fresh clones of the public repositories, in a clean chroot, and runs picom's unit tests and both plugins' tests that need no X server. <strong>The steps by hand</strong> come from picom's README and the plugins' Makefiles and READMEs, and were run on local clones of the same branches, not yet from fresh clones.</li>

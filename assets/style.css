@@ -455,3 +455,8 @@ button.plain:hover { background: var(--code-bg); }
 	.bar ol { flex-wrap: wrap; overflow-x: visible; }
 	pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 }
+
+/* Every heading links to itself: the # shows on hover, and faintly where there is no hover. */
+.anchor { margin-left: 0.4em; color: var(--muted); font-weight: 400; text-decoration: none; opacity: 0; }
+h2:hover .anchor, h3:hover .anchor, h4:hover .anchor, .anchor:focus-visible { opacity: 1; }
+@media (hover: none) { .anchor { opacity: 0.45; } }

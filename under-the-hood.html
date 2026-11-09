@@ -37,7 +37,7 @@
 
 	<main>
 		<section id="layers" class="text">
-			<h2>Who owns what</h2>
+			<h2>Who owns what<a class="anchor" href="#layers" aria-label="Link to this section">#</a></h2>
 			<p>The work is split by who I think should own each part. That is my view; each project decides for itself.</p>
 			<ul>
 				<li><strong>picom</strong>: only general mechanisms that know nothing about any window manager: variables from plugins, animation triggers, script outputs, pictures of hidden windows, and how frames are drawn and timed.</li>
@@ -50,25 +50,25 @@
 		</section>
 
 		<section id="backlog" class="text">
-			<h2>The backlog</h2>
+			<h2>The backlog<a class="anchor" href="#backlog" aria-label="Link to this section">#</a></h2>
 			<p>The backlog has a page of its own: <a href="backlog.html">6:backlog</a>, one row per change, with where it stands and how big it is.</p>
 		</section>
 
 		<section id="late-frames" class="text">
-			<h2>Late frames on NVIDIA</h2>
+			<h2>Late frames on NVIDIA<a class="anchor" href="#late-frames" aria-label="Link to this section">#</a></h2>
 			<p>Measured on my machine: NVIDIA's 595 driver, one X screen over two monitors (3440x1440 at 175 Hz, and 1080x1920 at 60 Hz), picom's glx backend, with wezterm and Chrome tiled and moved six times. A frame counts as late when it comes more than 20 ms after the one before.</p>
 
-			<h3 id="bind">Binding a window's picture</h3>
+			<h3 id="bind">Binding a window's picture<a class="anchor" href="#bind" aria-label="Link to this section">#</a></h3>
 			<p>To draw a window, picom binds its pixmap, the window's picture in the X server, to an OpenGL texture. The texture must hold all drawing done before the bind, so on NVIDIA the bind waits for the program's GPU work. For a fresh pixmap that took 2.4 to 3 ms. After the program drew into it: 5.6 ms for wezterm, 9.6 ms for Chrome, and up to 41 ms. A window that resizes gets a new pixmap at every size.</p>
 			<p>picom used to name, copy and bind the new pixmap inside its event handler, about 11 ms per size. The fork now names it without waiting, binds it once X has confirmed its size, and keeps the old one bound meanwhile, so nothing is copied. With flipping off, late frames went from 10.4–11.3% to 8.9–10.3%, and the worst gap from 77–89 ms to 55–74 ms.</p>
 			<p>Keeping two pixmaps bound may look at odds with a rule picom made for NVIDIA in 2019. That rule is about one pixmap with two names; a resized window's new pixmap is a different pixmap. On screen, all 257 pictures bound this way matched the X server's.</p>
 			<p>The bind still costs what it costs; it only moved. The picture worker was the next try: a thread that binds while the frame is drawn. In a separate test program, it took late frames during binds from 99% to 4%, and the worst gap from 66 to 34 ms. In picom it took the binds out of the frame, but the freeze at the start of a move stayed: the GPU, below, explains why. The worker is parked on a branch.</p>
 
-			<h3 id="flipping">OpenGL flipping and two refresh rates</h3>
+			<h3 id="flipping">OpenGL flipping and two refresh rates<a class="anchor" href="#flipping" aria-label="Link to this section">#</a></h3>
 			<p>With the driver's OpenGL flipping on, picom's buffer swaps waited for the 60 Hz monitor, although picom synced to the 175 Hz one: the blocked swaps ended on a 16.7 ms grid. picom's own vsync setting didn't change that. 170 of 385 swaps blocked (11 ms median), frames came every 16.2 ms (median), and 25.7% were late.</p>
 			<p>With flipping off (<code>nvidia-settings -n -a AllowFlipping=0</code>): 28 of 613 swaps blocked for more than 2 ms, frames came every 5.7 ms, and 9.9% were late. It is a driver setting for every OpenGL program, so it is the user's choice, not a change for picom.</p>
 
-			<h3 id="gpu">The GPU, not the bind</h3>
+			<h3 id="gpu">The GPU, not the bind<a class="anchor" href="#gpu" aria-label="Link to this section">#</a></h3>
 			<p>Moving Chrome between monitors still froze the first frames of the move: the first frame came 32 to 54 ms after the one before, so the animation, which runs on the clock, skipped that much motion. The picture worker took the binds out of picom's thread (the frame's picture step went from 13–22 ms to under 0.4 ms), yet the freeze stayed. What was left were waits on the GPU, busy with the program's own redraw at its new size.</p>
 			<p>A GPU context can ask for a higher priority, as Wayland compositors do. GLX has no way to ask; EGL has <code>EGL_IMG_context_priority</code>, which NVIDIA's driver offers and grants. Motion skipped at the start of each move, in ms:</p>
 			<ul>
@@ -78,7 +78,7 @@
 			</ul>
 			<p>About 20 ms is left, mostly X event handling. The egl backend draws with the same code as glx, so the styles work the same on both.</p>
 
-			<h3 id="scale">Fewer waits on X</h3>
+			<h3 id="scale">Fewer waits on X<a class="anchor" href="#scale" aria-label="Link to this section">#</a></h3>
 			<p>A benchmark on a virtual X screen changes 1 to 16 windows at once and times every part of picom's frames, and every wait for an answer from X. In the cleanup before publishing, code that waited once per window was changed to wait once per pass:</p>
 			<ul>
 				<li>first frame of a change: 23–38 ms down to 3.6–12.6 ms on xrender, 29–54 ms down to 17–31 ms on glx;</li>
@@ -87,13 +87,13 @@
 			</ul>
 			<p>On a virtual screen an answer from X takes microseconds; on a busy real one it can take milliseconds, so the counts carry over and the times only roughly. What is left is picom's own: about 9 to 14 answers per window, waited for one after the other, when windows map or a change starts. Sending those requests first and reading the answers once per pass would be the next fix.</p>
 
-			<h3 id="fence">A round trip to X every frame</h3>
+			<h3 id="fence">A round trip to X every frame<a class="anchor" href="#fence" aria-label="Link to this section">#</a></h3>
 			<p>Every frame, picom sets an X Sync fence, waits on it, and then waits for the X server to answer. That makes sure X has finished the drawing picom is about to use. It isn't timed on its own: what is left of the draw step after its timed parts was 3.8 to 5.8 ms (median) in late frames, and up to 15.8 to 41 ms.</p>
 			<p>A branch of the fork waits only when an X event came since the last wait. picom learns of all X drawing it uses through events, so the wait still guards the same drawing. The longest wait fell from 26–29 ms to 7–12 ms, and the total wait by 40 to 60%. Late frames stayed the same in the usual scene (9.1%) and fell from 2.4% to 1.3% in a heavy one. Next: let the GPU wait instead of picom, where the driver has <code>GL_EXT_x11_sync_object</code>, so no answer from X is needed.</p>
 		</section>
 
 		<section id="pictures" class="text">
-			<h2>Getting the picture right</h2>
+			<h2>Getting the picture right<a class="anchor" href="#pictures" aria-label="Link to this section">#</a></h2>
 			<p>When a window gets a new size, i3 resizes it at once and the program draws its new picture a moment later. Until then picom shows the old picture at its own size. The 3D styles switch to the new one at a moment it can't be seen, a window seen edge on, but only if picom knows the program has drawn. Four ways that went wrong, each found on the recordings and fixed with a test that failed first:</p>
 			<ul>
 				<li><strong>A fast program.</strong> Chrome drew its new size before picom handled the resize, and that drawing was thrown away with X's own damage from the resize. picom now keeps what came after the resize, and asks the program to draw again while it shows the old picture.</li>
@@ -104,16 +104,16 @@
 		</section>
 
 		<section id="dropped" class="text">
-			<h2>Tried and dropped</h2>
-			<h3>Live resize</h3>
+			<h2>Tried and dropped<a class="anchor" href="#dropped" aria-label="Link to this section">#</a></h2>
+			<h3 id="live-resize">Live resize<a class="anchor" href="#live-resize" aria-label="Link to this section">#</a></h3>
 			<p>The idea: during an animation, give each program its real size step by step, so it lays out its content for the size it is shown at, not for the end size from the start. I built it in win-cause, with each program paced by how fast it draws, and with an i3 patch: a <code>draw_at</code> command that draws a window at a given rectangle without changing i3's layout, and a <code>window::resize</code> event. It worked, with tests.</p>
 			<p>But on X, every size in between costs the program a redraw and picom a new picture bind. That shows as stutter, and as pictures that lag behind the box. One resize at the start, with only the box animating, is much smoother. So live resize is parked on a branch of its own, with the plugin calls it needed, and the i3 patch is not proposed.</p>
-			<h3>Reading the window's frame</h3>
+			<h3 id="reading-the-window-s-frame">Reading the window's frame<a class="anchor" href="#reading-the-window-s-frame" aria-label="Link to this section">#</a></h3>
 			<p>Another way to get a resized window's picture: read the window manager's frame with GetImage and bind it later. Each bind then came after the program drew, the slow case above, and late frames didn't improve (23% against 22%). The design above replaced it.</p>
 		</section>
 
 		<section id="limits" class="text">
-			<h2>What X still limits</h2>
+			<h2>What X still limits<a class="anchor" href="#limits" aria-label="Link to this section">#</a></h2>
 			<ul>
 				<li>X has no signal that a program's GPU work on its window is done. DAMAGE says the X server handled the drawing, not that the GPU finished it.</li>
 				<li>GLX can't bind a pixmap without waiting for that work. A thread can keep the wait out of the frame, but the GPU still does the work in order.</li>

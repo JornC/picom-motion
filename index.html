@@ -37,12 +37,12 @@
 
 	<main>
 		<section id="what" class="text">
-			<h2>What this is</h2>
+			<h2>What this is<a class="anchor" href="#what" aria-label="Link to this section">#</a></h2>
 			<p>picom draws the animations, and its animation scripts decide how they look. But picom doesn't know about workspaces, or why a window moved; the window manager knows that. Two plugins fill that gap, on a fork of picom that adds what they need. Each change in the fork is its own commit, so picom can look at each one on its own, and take it or leave it. The two parts are of very different size.</p>
 		</section>
 
 		<section id="note" class="text caveat">
-			<h2>A note before you read on</h2>
+			<h2>A note before you read on<a class="anchor" href="#note" aria-label="Link to this section">#</a></h2>
 			<p>picom has been built over more than twenty years by about a hundred people, from xcompmgr and compton to picom today, and its maintainers have kept it working with care for all of that time. This project is a few weeks old, and its code was written with LLMs. I am an experienced software engineer, but not a C programmer: LLM coding agents did most of the research and the implementation. I set the goals, tested every change, judged the results on a real screen, and run it every day. That is a careful process, but it is not the same as code written by people who know picom inside out, and I don't want it taken for that. Much of it is also rough: it works, but it isn't the shape it should have upstream. <a href="backlog.html">The backlog</a> says how far each change is from that.</p>
 			<p>It is also large: about 21,000 new lines next to picom's 44,000, nearly half of them tests. This is what the fork holds today, by what it is for:</p>
 			<ul>
@@ -58,7 +58,7 @@
 
 		<section id="workspaces" class="pair">
 			<div class="text">
-				<h2>Workspace transitions: the smaller part</h2>
+				<h2>Workspace transitions: the smaller part<a class="anchor" href="#workspaces" aria-label="Link to this section">#</a></h2>
 				<p>A workspace switch animates the way it went, up or down, left or right, on each monitor, in a style you choose: a slide, a card push, a fold, a turning cube. The <a href="workspaces.html">ws-direction</a> plugin tells picom's animation scripts which way the switch went and where each workspace lies. It reads only the standard window manager properties (EWMH), so it isn't tied to i3.</p>
 				<p>This is the smaller part, and the one I'd ask picom about first. Every switch style uses five changes to picom:</p>
 				<ul>
@@ -82,7 +82,7 @@
 
 		<section id="windows" class="pair">
 			<div class="text">
-				<h2>Window animations: the hard part</h2>
+				<h2>Window animations: the hard part<a class="anchor" href="#windows" aria-label="Link to this section">#</a></h2>
 				<p>Animating the windows themselves, as they open, close, move, go fullscreen or float, is much harder. picom sees a window move, but not why. Only the window manager knows that, so the <a href="windows.html">win-cause</a> plugin talks to i3 directly: it asks i3 to say when each change is done, and gives every move its reason, so each reason can have its own animation. That ties it to i3.</p>
 				<p>The pictures are the other hard part. When a window gets a new size, its program draws the new picture a moment later, and until then picom must show something right, without stretching anything. That took deeper machinery in picom: knowing exactly when a program has drawn, waiting for a window's first picture, keeping old pictures at their own size, filling with the colour of the content, renaming moves, shows and hides, and holding animations so that the windows of one change stay on one clock.</p>
 				<p>That machinery lives in the fork. Much of it exists for one window manager's sake, so whether picom wants it is an open question. <a href="under-the-hood.html#pictures">How the pictures are kept right</a></p>
@@ -99,7 +99,7 @@
 		</section>
 
 		<section id="goals" class="text">
-			<h2>Three goals</h2>
+			<h2>Three goals<a class="anchor" href="#goals" aria-label="Link to this section">#</a></h2>
 			<ol class="parts">
 				<li><strong>Make it work now.</strong> Every workspace and window animation a user or developer might want. When something is in the way, I work around it, in the fork or in a plugin, rather than ask anyone else to hurry.</li>
 				<li><strong>Offer it where it belongs.</strong> Where a change could serve another project, picom, i3 or another window manager, or X, offer it there, and let that project decide. What is the plugins' own job stays in the plugins. The workspace transitions and the fixes would come first; the window animations stay in the fork and the plugin. The backlog shows two sides of each item: what makes it work today, and where it could go. See <a href="backlog.html">the backlog</a>.</li>
@@ -108,23 +108,23 @@
 		</section>
 
 		<section id="record" class="text">
-			<h2>A record of what it takes</h2>
+			<h2>A record of what it takes<a class="anchor" href="#record" aria-label="Link to this section">#</a></h2>
 			<p>This site records what it took to make animations work well on X11, as far as I got. I tried what I could, down to how picom waits for the X server and the driver while it draws a frame. How the code was written is in <a href="#note">the note above</a>.</p>
-			<h3>What works</h3>
+			<h3 id="what-works">What works<a class="anchor" href="#what-works" aria-label="Link to this section">#</a></h3>
 			<ul>
 				<li>Workspace switches that go the right way on each monitor, styles that show the workspaces a switch passes, such as a turning cube, and an overview of all workspaces.</li>
 				<li>Window animations for every change i3 makes: open, close, fullscreen, floating, resize, swap, move and layout. The windows of one change move together, and a change during a change goes on from where everything is.</li>
 				<li>Pictures that stay right: a window switches to its new picture at a moment it can't be seen, an opening waits for the program's first picture, and windows covered by a fullscreen window stay in place.</li>
 				<li>Fewer late frames on NVIDIA, from changes to how picom binds window pictures and when it waits for the X server, and from giving picom's GPU work priority over the programs' drawing.</li>
 			</ul>
-			<h3>What X still limits</h3>
+			<h3 id="what-x-still-limits">What X still limits<a class="anchor" href="#what-x-still-limits" aria-label="Link to this section">#</a></h3>
 			<ul>
 				<li>picom can't use a window's new picture until the program's GPU work on it is done, and X has no signal for when that is. On NVIDIA that wait can take tens of milliseconds.</li>
 				<li>Every frame, picom asks the X server whether it has finished drawing, and waits for the answer.</li>
 				<li>Resizing programs step by step during an animation can't be made smooth on X. I tried it and dropped it: every size in between costs the program a redraw and picom a new picture. One resize at the start, with only the box animating, is much smoother.</li>
 			</ul>
 			<p>The details and numbers are under <a href="under-the-hood.html#late-frames">Under the hood</a>.</p>
-			<h3>After this month</h3>
+			<h3 id="after-this-month">After this month<a class="anchor" href="#after-this-month" aria-label="Link to this section">#</a></h3>
 			<p>I work on this actively for about a month, from November 2026. After that I keep using it and fix what I contributed, but I won't drive new features or an agenda. The fork is a place to keep changes while the projects involved look at them, at their pace, not a picom of its own. The window animations need it for as long as picom has no place for their machinery. Other window managers get support only where that is easy: ws-direction reads plain EWMH properties, while win-cause needs i3.</p>
 			<p>It is there for picom and its community to use as they see fit, and for anyone who wants to pick up a part of it.</p>
 		</section>
