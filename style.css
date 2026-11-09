@@ -276,3 +276,5 @@ footer {
 /* The note at the top of the home page: framed, so nobody reads past it. */
 section.caveat { margin-top: 0.5rem; padding: 1.25rem 1.5rem 0.5rem; border: 1px solid var(--line); border-left: 4px solid var(--tag-fork); border-radius: 6px; background: var(--code-bg); }
 section.caveat h2 { margin-top: 0; }
+.llm-note { margin-top: 0.75rem; color: var(--muted); font-size: 0.875rem; }
+p code, li code { overflow-wrap: anywhere; }
