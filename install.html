@@ -36,6 +36,13 @@
 	</header>
 
 	<main class="text">
+		<section id="arch">
+			<h2>On Arch Linux</h2>
+			<p>The AUR package <a href="https://aur.archlinux.org/packages/picom-motion-git">picom-motion-git</a> builds the fork and both plugins from these repositories, and takes the place of steps 1 to 3:</p>
+<pre><code>yay -S picom-motion-git</code></pre>
+			<p>It replaces Arch's picom, and puts the plugins where picom finds them by name, the styles in <code>/etc/xdg/picom/include/</code>, and the <code>ws-direction</code> and <code>win-cause</code> commands in <code>/usr/bin</code>. Then go on with <a href="#picom-conf">4. picom.conf</a>. Problems with the package go to <a href="https://github.com/JornC/picom-motion/issues">this site's repository</a>, not to picom. Back to picom: <code>sudo pacman -S picom</code>.</p>
+		</section>
+
 		<section id="needs">
 			<h2>What you need</h2>
 			<ul>
@@ -148,8 +155,8 @@ mode "overview" {
 		<section id="status">
 			<h2>What is checked</h2>
 			<ul>
-				<li><strong>In daily use:</strong> my machine. Arch Linux, NVIDIA, stock i3, two monitors, egl, built with my own Arch package from the same code.</li>
-				<li><strong>The commands on this page</strong> come from picom's README, the plugins' Makefiles and READMEs, and my package recipe. The build steps were run on local clones of the same branches, and the <code>picom.conf</code> above loads in the built picom with both plugins. They were not yet run from a fresh clone of the public repositories.</li>
+				<li><strong>In daily use:</strong> my machine. Arch Linux, NVIDIA, stock i3, two monitors, egl, with the AUR package picom-motion-git.</li>
+				<li><strong>The AUR package</strong> builds from fresh clones of the public repositories, in a clean chroot, and runs picom's unit tests and both plugins' tests that need no X server. <strong>The steps by hand</strong> come from picom's README and the plugins' Makefiles and READMEs, and were run on local clones of the same branches, not yet from fresh clones.</li>
 				<li><strong>Not tried:</strong> other distributions, AMD and Intel GPUs, and window managers other than i3.</li>
 			</ul>
 			<p>If something doesn't work, an issue on the plugin's repository helps, with what you ran and what it said.</p>
