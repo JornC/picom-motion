@@ -6,7 +6,7 @@
 	// Each change is a row and, right after it, the row its details open into.
 	const rows = [...tbody.rows].filter((r) => !r.classList.contains("more"));
 	const active = { goal: new Set(), status: new Set() };
-	const numeric = new Set(["num", "goal", "status", "size"]);
+	const numeric = new Set(["num", "goal", "status", "outlook", "size"]);
 	const search = document.querySelector(".tools input[type=search]");
 	let query = "";
 	let sortKey = null;
@@ -36,13 +36,16 @@
 	}
 
 	function sortBy(key, th) {
-		// Size starts with the largest; the rest start from the top.
-		sortDir = key === sortKey ? -sortDir : (key === "size" ? -1 : 1);
+		// Size and outlook start with the largest; the rest start from the top.
+		sortDir = key === sortKey ? -sortDir : (key === "size" || key === "outlook" ? -1 : 1);
 		sortKey = key;
 		const order = (a, b) => Number(value(a, "num")) - Number(value(b, "num"));
+		// Rows without a rating or a size go last, whichever way the column sorts.
+		const none = (v) => (key === "outlook" && v === "-9") || (key === "size" && v === "-1");
 		rows.sort((a, b) => {
 			const x = value(a, key);
 			const y = value(b, key);
+			if (none(x) !== none(y)) return none(x) ? 1 : -1;
 			const c = numeric.has(key) ? Number(x) - Number(y) : x.localeCompare(y);
 			return c * sortDir || order(a, b);
 		});

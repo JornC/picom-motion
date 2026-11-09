@@ -422,3 +422,12 @@ button.plain:hover { background: var(--code-bg); }
 .sheet tr[hidden] { display: none !important; }
 .sheet td.code { width: 6.5rem; font-size: 0.8125rem; }
 .sheet td.code a { display: inline-block; white-space: nowrap; margin-right: 0.4rem; }
+/* The outlook: a calm scale from green (clean) through grey (open) to ochre (hack). */
+:root { --fit0: #a0601e; --fit1: #c9962b; --fit2: #8c95a3; --fit3: #3aa58c; --fit4: #1f8a5b; }
+@media (prefers-color-scheme: dark) { :root { --fit0: #d9955a; --fit1: #e6bf6a; --fit2: #9aa3b2; --fit3: #6fd0b5; --fit4: #5fd093; } }
+.fit0 { --c: var(--fit0); } .fit1 { --c: var(--fit1); } .fit2 { --c: var(--fit2); } .fit3 { --c: var(--fit3); } .fit4 { --c: var(--fit4); }
+.fit { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.75rem; font-weight: 600; color: var(--c); white-space: nowrap; }
+.fit .dots { display: inline-flex; gap: 2px; }
+.fit .dots i { width: 0.45rem; height: 0.7rem; border-radius: 2px; background: var(--line); }
+.fit .dots i.on { background: var(--c); }
+.sheet td.outlook { white-space: nowrap; }
