@@ -43,7 +43,7 @@
 
 		<section id="note" class="text caveat">
 			<h2>A note before you read on</h2>
-			<p>picom has been built over more than twenty years by about a hundred people, from xcompmgr and compton to picom today, and its maintainers have kept it working with care for all of that time. This project is a few weeks old, and its code was written with LLMs. I am an experienced software engineer, but not a C programmer: LLM coding agents did most of the research and the implementation. I set the goals, tested every change, judged the results on a real screen, and run it every day. That is a careful process, but it is not the same as code written by people who know picom inside out, and I don't want it taken for that.</p>
+			<p>picom has been built over more than twenty years by about a hundred people, from xcompmgr and compton to picom today, and its maintainers have kept it working with care for all of that time. This project is a few weeks old, and its code was written with LLMs. I am an experienced software engineer, but not a C programmer: LLM coding agents did most of the research and the implementation. I set the goals, tested every change, judged the results on a real screen, and run it every day. That is a careful process, but it is not the same as code written by people who know picom inside out, and I don't want it taken for that. Much of it is also rough: it works, but it isn't the shape it should have upstream. <a href="backlog.html">The backlog</a> says how far each change is from that.</p>
 			<p>It is also large: about 21,000 new lines next to picom's 44,000, nearly half of them tests. This is what the fork holds today, by what it is for:</p>
 			<ul>
 				<li>what every workspace switch style uses: 1,700 lines;</li>
@@ -53,7 +53,7 @@
 				<li>a frame timing log, used to measure all of this: 1,600;</li>
 				<li>the window animations: 10,100.</li>
 			</ul>
-			<p>None of this is decided. Whether any of it belongs in picom, in this shape or another, is for picom's maintainers to say. If they're interested, I'd start with the smallest part, offer it one or two small PRs at a time, each with its tests and a note on how it was written, and go no further than they want. Anything can be reshaped or declined, and what picom doesn't take stays in the fork.</p>
+			<p>None of this is decided, and none of it is meant to be merged as it is. Whether any of it belongs in picom, in this shape or another, is for picom's maintainers to say. If they're interested, I'd start with the smallest part and offer it one or two small PRs at a time, each with its tests and a note on how it was written, slowly enough that each change gets real scrutiny, and go no further than they want. Most of it would need reshaping on the way; anything can be declined, and what picom doesn't take stays in the fork.</p>
 		</section>
 
 		<section id="workspaces" class="pair">
@@ -103,7 +103,7 @@
 			<ol class="parts">
 				<li><strong>Make it work now.</strong> Every workspace and window animation a user or developer might want. When something is in the way, I work around it, in the fork or in a plugin, rather than ask anyone else to hurry.</li>
 				<li><strong>Offer it where it belongs.</strong> Where a change could serve another project, picom, i3 or another window manager, or X, offer it there, and let that project decide. What is the plugins' own job stays in the plugins. The workspace transitions and the fixes would come first; the window animations stay in the fork and the plugin. The backlog shows two sides of each item: what makes it work today, and where it could go. See <a href="backlog.html">the backlog</a>.</li>
-				<li><strong>Do it properly.</strong> Animations that fully work, run smoothly and are built cleanly. The owner of the machine, user or developer, chooses which animations run and how they look.</li>
+				<li><strong>Do it properly.</strong> Animations that fully work, run smoothly and, in the end, are built cleanly. Much of the code isn't there yet; see <a href="backlog.html">the backlog</a>. The owner of the machine, user or developer, chooses which animations run and how they look.</li>
 			</ol>
 		</section>
 

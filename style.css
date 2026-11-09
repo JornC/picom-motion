@@ -431,3 +431,21 @@ button.plain:hover { background: var(--code-bg); }
 .fit .dots i { width: 0.45rem; height: 0.7rem; border-radius: 2px; background: var(--line); }
 .fit .dots i.on { background: var(--c); }
 .sheet td.outlook { white-space: nowrap; }
+
+/* Narrow screens, last so it wins: each change is a card whose parts wrap, never wider than the screen. */
+@media (max-width: 52rem) {
+	.sheet tbody tr:not(.more) { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.75rem; }
+	.sheet tbody td[class] { display: block; width: auto; min-width: 0; padding: 0; white-space: normal; }
+	.sheet tbody td.num { display: none; }
+	.sheet tbody td.change { flex: 1 1 100%; }
+	.sheet tbody td.go { color: var(--muted); }
+	.sheet tbody td.size { white-space: nowrap; }
+	.sheet tbody td.size .sizebar { width: 3rem; }
+	.sheet tbody td.size .sizenum { min-width: 0; }
+	.sheet tbody td.touches { flex: 1 1 100%; }
+	.sheet tbody td.touches:empty { display: none; }
+	.sheet tbody td.code a { margin-right: 0.5rem; }
+	.sheet tr:has(details[open]) + tr.more > td { display: block; padding: 0.5rem 0 0; background: none; }
+	.facts { grid-template-columns: auto minmax(0, 1fr); }
+	.commits li { overflow-wrap: anywhere; }
+}
