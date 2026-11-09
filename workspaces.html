@@ -7,13 +7,13 @@
 <meta name="description" content="ws-direction: a picom plugin that tells animation scripts which way an i3 workspace switch went and which monitor it is on, with its switch styles and overviews.">
 <meta property="og:title" content="Workspace styles: ws-direction">
 <meta property="og:description" content="ws-direction: a picom plugin that tells animation scripts which way an i3 workspace switch went and which monitor it is on, with its switch styles and overviews.">
-<meta property="og:image" content="https://jornc.github.io/picom-motion/workspaces-slide.png">
+<meta property="og:image" content="https://jornc.github.io/picom-motion/media/workspaces/slide.png">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Recursive:wght,MONO@300..900,0..1&amp;display=swap">
-<link rel="stylesheet" href="style.css">
-<script src="site.js" defer></script>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js" defer></script>
 </head>
 <body>
 <nav class="bar" aria-label="Pages">
@@ -39,10 +39,10 @@
 	<main>
 		<section id="demo" aria-label="Demo">
 			<figure>
-				<div class="frame demo" data-file="workspaces-slide.webm">
-					<video class="screen" autoplay muted loop playsinline poster="workspaces-slide.png" width="1720" height="1100" aria-describedby="demo-caption">
-						<source src="workspaces-slide.webm" type="video/webm">
-						<source src="workspaces-slide.mp4" type="video/mp4">
+				<div class="frame demo" data-file="media/workspaces/slide.webm">
+					<video class="screen" autoplay muted loop playsinline poster="media/workspaces/slide.png" width="1720" height="1100" aria-describedby="demo-caption">
+						<source src="media/workspaces/slide.webm" type="video/webm">
+						<source src="media/workspaces/slide.mp4" type="video/mp4">
 					</video>
 				</div>
 				<figcaption id="demo-caption" class="text">Two monitors under i3, in the slide style, on a real screen. Going to a higher workspace brings it in from the right on the portrait monitor, and from below on the landscape one. Going back reverses the slide. Pauses between switches are trimmed to the same length; the animations themselves are unedited.</figcaption>
@@ -56,10 +56,10 @@
 			</div>
 			<div class="gallery">
 				<figure id="style-slide">
-					<div class="frame demo" data-file="workspaces-slide.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-slide.png" width="1720" height="1100" aria-label="The slide style">
-							<source src="workspaces-slide.webm" type="video/webm">
-							<source src="workspaces-slide.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/slide.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/slide.png" width="1720" height="1100" aria-label="The slide style">
+							<source src="media/workspaces/slide.webm" type="video/webm">
+							<source src="media/workspaces/slide.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>
@@ -69,10 +69,10 @@
 					</figcaption>
 				</figure>
 				<figure id="style-push">
-					<div class="frame demo" data-file="workspaces-push.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-push.png" width="1720" height="1100" aria-label="The push style">
-							<source src="workspaces-push.webm" type="video/webm">
-							<source src="workspaces-push.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/push.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/push.png" width="1720" height="1100" aria-label="The push style">
+							<source src="media/workspaces/push.webm" type="video/webm">
+							<source src="media/workspaces/push.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>
@@ -82,10 +82,10 @@
 					</figcaption>
 				</figure>
 				<figure id="style-fold">
-					<div class="frame demo" data-file="workspaces-fold.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-fold.png" width="1720" height="1100" aria-label="The fold style">
-							<source src="workspaces-fold.webm" type="video/webm">
-							<source src="workspaces-fold.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/fold.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/fold.png" width="1720" height="1100" aria-label="The fold style">
+							<source src="media/workspaces/fold.webm" type="video/webm">
+							<source src="media/workspaces/fold.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>
@@ -95,10 +95,10 @@
 					</figcaption>
 				</figure>
 				<figure id="style-cube">
-					<div class="frame demo" data-file="workspaces-cube.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-cube.png" width="1720" height="1100" aria-label="The cube style">
-							<source src="workspaces-cube.webm" type="video/webm">
-							<source src="workspaces-cube.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/cube.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/cube.png" width="1720" height="1100" aria-label="The cube style">
+							<source src="media/workspaces/cube.webm" type="video/webm">
+							<source src="media/workspaces/cube.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>
@@ -108,10 +108,10 @@
 					</figcaption>
 				</figure>
 				<figure id="style-flip">
-					<div class="frame demo" data-file="workspaces-flip.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-flip.png" width="1720" height="1100" aria-label="The flip style">
-							<source src="workspaces-flip.webm" type="video/webm">
-							<source src="workspaces-flip.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/flip.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/flip.png" width="1720" height="1100" aria-label="The flip style">
+							<source src="media/workspaces/flip.webm" type="video/webm">
+							<source src="media/workspaces/flip.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>
@@ -121,10 +121,10 @@
 					</figcaption>
 				</figure>
 				<figure id="style-cascade">
-					<div class="frame demo" data-file="workspaces-cascade.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-cascade.png" width="1720" height="1100" aria-label="The cascade style">
-							<source src="workspaces-cascade.webm" type="video/webm">
-							<source src="workspaces-cascade.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/cascade.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/cascade.png" width="1720" height="1100" aria-label="The cascade style">
+							<source src="media/workspaces/cascade.webm" type="video/webm">
+							<source src="media/workspaces/cascade.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>
@@ -134,10 +134,10 @@
 					</figcaption>
 				</figure>
 				<figure id="style-warp">
-					<div class="frame demo" data-file="workspaces-warp.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-warp.png" width="1720" height="1100" aria-label="The warp style">
-							<source src="workspaces-warp.webm" type="video/webm">
-							<source src="workspaces-warp.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/warp.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/warp.png" width="1720" height="1100" aria-label="The warp style">
+							<source src="media/workspaces/warp.webm" type="video/webm">
+							<source src="media/workspaces/warp.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>
@@ -147,10 +147,10 @@
 					</figcaption>
 				</figure>
 				<figure id="style-zoom-pan">
-					<div class="frame demo" data-file="workspaces-zoom-pan.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-zoom-pan.png" width="1720" height="1100" aria-label="The zoom-pan style">
-							<source src="workspaces-zoom-pan.webm" type="video/webm">
-							<source src="workspaces-zoom-pan.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/zoom-pan.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/zoom-pan.png" width="1720" height="1100" aria-label="The zoom-pan style">
+							<source src="media/workspaces/zoom-pan.webm" type="video/webm">
+							<source src="media/workspaces/zoom-pan.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>
@@ -160,10 +160,10 @@
 					</figcaption>
 				</figure>
 				<figure id="style-ink">
-					<div class="frame demo" data-file="workspaces-ink.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-ink.png" width="1720" height="1100" aria-label="The ink style">
-							<source src="workspaces-ink.webm" type="video/webm">
-							<source src="workspaces-ink.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/ink.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/ink.png" width="1720" height="1100" aria-label="The ink style">
+							<source src="media/workspaces/ink.webm" type="video/webm">
+							<source src="media/workspaces/ink.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>
@@ -173,10 +173,10 @@
 					</figcaption>
 				</figure>
 				<figure id="style-paper">
-					<div class="frame demo" data-file="workspaces-paper.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-paper.png" width="1720" height="1100" aria-label="The paper style">
-							<source src="workspaces-paper.webm" type="video/webm">
-							<source src="workspaces-paper.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/paper.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/paper.png" width="1720" height="1100" aria-label="The paper style">
+							<source src="media/workspaces/paper.webm" type="video/webm">
+							<source src="media/workspaces/paper.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>
@@ -186,10 +186,10 @@
 					</figcaption>
 				</figure>
 				<figure id="style-pop">
-					<div class="frame demo" data-file="workspaces-pop.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-pop.png" width="1720" height="1100" aria-label="The pop style">
-							<source src="workspaces-pop.webm" type="video/webm">
-							<source src="workspaces-pop.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/pop.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/pop.png" width="1720" height="1100" aria-label="The pop style">
+							<source src="media/workspaces/pop.webm" type="video/webm">
+							<source src="media/workspaces/pop.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>
@@ -199,10 +199,10 @@
 					</figcaption>
 				</figure>
 				<figure id="style-twirl">
-					<div class="frame demo" data-file="workspaces-twirl.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-twirl.png" width="1720" height="1100" aria-label="The twirl style">
-							<source src="workspaces-twirl.webm" type="video/webm">
-							<source src="workspaces-twirl.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/twirl.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/twirl.png" width="1720" height="1100" aria-label="The twirl style">
+							<source src="media/workspaces/twirl.webm" type="video/webm">
+							<source src="media/workspaces/twirl.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>
@@ -212,10 +212,10 @@
 					</figcaption>
 				</figure>
 				<figure id="style-wipe">
-					<div class="frame demo" data-file="workspaces-wipe.webm">
-						<video class="screen" muted loop playsinline preload="none" poster="workspaces-wipe.png" width="1720" height="1100" aria-label="The wipe style">
-							<source src="workspaces-wipe.webm" type="video/webm">
-							<source src="workspaces-wipe.mp4" type="video/mp4">
+					<div class="frame demo" data-file="media/workspaces/wipe.webm">
+						<video class="screen" muted loop playsinline preload="none" poster="media/workspaces/wipe.png" width="1720" height="1100" aria-label="The wipe style">
+							<source src="media/workspaces/wipe.webm" type="video/webm">
+							<source src="media/workspaces/wipe.mp4" type="video/mp4">
 						</video>
 					</div>
 					<figcaption>

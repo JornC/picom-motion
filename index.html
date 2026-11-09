@@ -7,13 +7,13 @@
 <meta name="description" content="Workspace and window animations for picom on X11 with i3: two plugins, their styles, and the picom changes they need.">
 <meta property="og:title" content="picom-motion">
 <meta property="og:description" content="Workspace and window animations for picom on X11 with i3: two plugins, their styles, and the picom changes they need.">
-<meta property="og:image" content="https://jornc.github.io/picom-motion/workspaces-slide.png">
+<meta property="og:image" content="https://jornc.github.io/picom-motion/media/workspaces/slide.png">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Recursive:wght,MONO@300..900,0..1&amp;display=swap">
-<link rel="stylesheet" href="style.css">
-<script src="site.js" defer></script>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/site.js" defer></script>
 </head>
 <body>
 <nav class="bar" aria-label="Pages">
@@ -70,10 +70,10 @@
 				<p>#1550 and #1551 are open; the other three are written and tested in the fork. The 3D styles, such as the cube, also use windows drawn in perspective: three more changes. The overview, and the switches that pass several workspaces, use kept pictures of hidden windows and a few more general hooks: twelve more. If picom is interested, I'd offer them one or two at a time, with the fixes found along the way. See <a href="backlog.html">the backlog</a>.</p>
 			</div>
 			<figure>
-				<div class="frame demo" data-file="workspaces-slide.webm">
-					<video class="screen" autoplay muted loop playsinline poster="workspaces-slide.png" width="1720" height="1100" aria-describedby="ws-caption">
-						<source src="workspaces-slide.webm" type="video/webm">
-						<source src="workspaces-slide.mp4" type="video/mp4">
+				<div class="frame demo" data-file="media/workspaces/slide.webm">
+					<video class="screen" autoplay muted loop playsinline poster="media/workspaces/slide.png" width="1720" height="1100" aria-describedby="ws-caption">
+						<source src="media/workspaces/slide.webm" type="video/webm">
+						<source src="media/workspaces/slide.mp4" type="video/mp4">
 					</video>
 				</div>
 				<figcaption id="ws-caption">A workspace switch on two monitors under i3, in the slide style. It goes sideways on the portrait monitor and up and down on the landscape one, and back the other way. Recorded on a real screen. Pauses between switches are trimmed to the same length; the animations themselves are unedited. <a href="workspaces.html">Workspace styles</a></figcaption>
@@ -88,10 +88,10 @@
 				<p>That machinery lives in the fork. Much of it exists for one window manager's sake, so whether picom wants it is an open question. <a href="under-the-hood.html#pictures">How the pictures are kept right</a></p>
 			</div>
 			<figure>
-				<div class="frame demo" data-file="windows-tile-curved.webm">
-					<video class="screen" muted loop playsinline preload="none" poster="windows-tile-curved.png" width="1720" height="1100" aria-describedby="win-caption">
-						<source src="windows-tile-curved.webm" type="video/webm">
-						<source src="windows-tile-curved.mp4" type="video/mp4">
+				<div class="frame demo" data-file="media/windows/tile-curved.webm">
+					<video class="screen" muted loop playsinline preload="none" poster="media/windows/tile-curved.png" width="1720" height="1100" aria-describedby="win-caption">
+						<source src="media/windows/tile-curved.webm" type="video/webm">
+						<source src="media/windows/tile-curved.mp4" type="video/mp4">
 					</video>
 				</div>
 				<figcaption id="win-caption">Windows that open, close, move, go fullscreen and float under i3, on a 16:9 and a 9:16 monitor, in the tile style with the curved way. Each window moves as a rectangle, on one curve and one clock with its neighbours. Its picture is never stretched. Recorded on a real screen. Pauses between steps are trimmed to the same length; the animations themselves are unedited. <a href="windows.html">Fifteen window styles</a></figcaption>
