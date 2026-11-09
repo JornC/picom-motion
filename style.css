@@ -420,3 +420,5 @@ button.plain:hover { background: var(--code-bg); }
 	.tools input[type="search"] { min-width: 0; flex: 1; }
 }
 .sheet tr[hidden] { display: none !important; }
+.sheet td.code { width: 6.5rem; font-size: 0.8125rem; }
+.sheet td.code a { display: inline-block; white-space: nowrap; margin-right: 0.4rem; }
