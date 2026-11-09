@@ -23,6 +23,7 @@
 		<li><a href="windows.html">3:windows</a></li>
 		<li><a href="install.html">4:install</a></li>
 		<li><a href="under-the-hood.html" aria-current="page">5:under the hood</a></li>
+		<li><a href="backlog.html">6:backlog</a></li>
 	</ol>
 	<a class="status mono" href="https://github.com/JornC/picom-motion">GitHub</a>
 </nav>
@@ -31,7 +32,7 @@
 	<header class="text">
 		<h1 class="mono">Under the hood</h1>
 		<p class="lede">What each piece changes, where I think it could go, how far it is, and what X still limits.</p>
-		<p class="note">On this page: <a href="#layers">who owns what</a>, <a href="#backlog">the backlog</a>, <a href="#late-frames">late frames on NVIDIA</a>, <a href="#scale">fewer waits on X</a>, <a href="#pictures">getting the picture right</a>, <a href="#dropped">tried and dropped</a>, <a href="#limits">what X still limits</a>. Status as of 8 November 2026. The code was written with LLMs; see <a href="index.html#note">a note before you read on</a>.</p>
+		<p class="note">On this page: <a href="#layers">who owns what</a>, <a href="backlog.html">the backlog</a>, <a href="#late-frames">late frames on NVIDIA</a>, <a href="#scale">fewer waits on X</a>, <a href="#pictures">getting the picture right</a>, <a href="#dropped">tried and dropped</a>, <a href="#limits">what X still limits</a>. Status as of 8 November 2026. The code was written with LLMs; see <a href="index.html#note">a note before you read on</a>.</p>
 	</header>
 
 	<main>
@@ -48,231 +49,9 @@
 			<p>The fork numbers its plugin API on its own, from 0.2 to 0.14. If picom takes a call, it numbers it itself, so these numbers are only the fork's.</p>
 		</section>
 
-		<section id="backlog">
-			<div class="text">
-				<h2>The backlog</h2>
-				<p>Each item has two sides: what makes it work today, and where it could go. What I'd like to offer picom is the workspace transitions and the fixes: one or two at a time, fixes before features, at picom's pace, starting with the plugin variables, since they decide how plugins work at all. The machinery of the window animations stays in the fork. Much of it exists for one window manager's sake, so whether picom wants it is an open question.</p>
-				<p>Nothing here goes up until the one before it has been discussed. picom may decline any of it; then it stays in the fork. How the code was written is in <a href="index.html#note">a note on the home page</a>.</p>
-				<p class="note">Status: <span class="tag done">merged</span> in picom or i3. <span class="tag open">open</span> posted. <span class="tag open">ready</span> written and tested, not posted yet. <span class="tag fork">in fork</span> in the fork's install branch. <span class="tag fork">branch</span> built, not in the install branch yet. <span class="tag dropped">parked</span> built and kept on a branch, not proposed. <span class="tag dropped">dropped</span> tried and let go.</p>
-			</div>
-			<table class="backlog">
-				<thead>
-					<tr><th scope="col">Change</th><th scope="col">Works today through</th><th scope="col">Could go as</th><th scope="col">Status</th></tr>
-				</thead>
-				<tbody>
-					<tr><th colspan="4" scope="rowgroup">Workspace transitions: the core</th></tr>
-					<tr>
-						<td>Plugins add variables to animation scripts. The base of both plugins.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">picom <a href="https://github.com/yshui/picom/pull/1550">#1550</a>.</td>
-						<td data-label="Status"><span class="tag open">open</span></td>
-					</tr>
-					<tr>
-						<td>xrender: clip the target, not the source, when copying an area.</td>
-						<td data-label="Today">The fork, or the glx backend.</td>
-						<td data-label="Could go as">picom <a href="https://github.com/yshui/picom/pull/1551">#1551</a>.</td>
-						<td data-label="Status"><span class="tag open">open</span></td>
-					</tr>
-					<tr>
-						<td>Three bugs in script expressions: an unclosed <code>(</code> crashed picom while reading its config, numbers were folded wrong (<code>2 - 1</code> gave 3), and a misspelled name with a minus gave a confusing error.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">One PR, three commits, each with a test.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>Scripts get functions: sin, cos, min, max and more. For the 3D styles.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">A picom PR, after #1550 and the expression fixes.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>Scripts can read the state an interrupted animation left, so a change during a change keeps its speed: the value and speed of each variable, a curve that starts at a given speed, and a spring. Every workspace switch style uses it.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">A picom PR of three commits, after the functions.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>Windows in perspective: a blit through a mesh, script outputs for a window's corners, its shadow, blur and frame opacity while turned, depth order, and dimming. For the cube, flip and unfold switches, and the 3D window styles.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">Three picom PRs: perspective, with a new backend call for the mesh; then depth order. Dimming stands alone.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-
-					<tr><th colspan="4" scope="rowgroup">Workspace transitions: the overview and passing workspaces</th></tr>
-					<tr>
-						<td>Pictures of hidden windows (a rule option keeps a window's last picture while it is hidden), animations a plugin or a D-Bus call starts, a held or paused screen, and an animation that holds its last pose. Plugin plumbing: a wakeup for the plugin's own X connection, which window is drawn at a point (clicks in the overview), and whether picom keeps a hidden window's picture. For switches that pass workspaces, the cube's other sides, and the overview.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">Twelve picom PRs, one per part, after the core. If picom takes a plugin call, it numbers it itself.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-
-					<tr><th colspan="4" scope="rowgroup">Fixes found along the way</th></tr>
-					<tr>
-						<td>Fix the search for plugins named in the config file.</td>
-						<td data-label="Today">picom.</td>
-						<td data-label="Could go as">picom <a href="https://github.com/yshui/picom/pull/1547">#1547</a>.</td>
-						<td data-label="Status"><span class="tag done">merged</span></td>
-					</tr>
-					<tr>
-						<td>Check the result of an animation's first evaluation.</td>
-						<td data-label="Today">picom.</td>
-						<td data-label="Could go as">picom <a href="https://github.com/yshui/picom/pull/1549">#1549</a>.</td>
-						<td data-label="Status"><span class="tag done">merged</span></td>
-					</tr>
-					<tr>
-						<td>A window mapped again during its hide animation blinks. On NVIDIA it shows the wallpaper for a few frames. picom now keeps the old picture until the window has redrawn.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">One PR, with a small change to picom's test runner first. One known gap to close before it could be offered.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>A move with no script for it ended the window's running animation, so i3 placing a new window cut its open animation short.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">One PR with its test.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>A window whose program closes before i3 takes down its frame lost its rules for a moment, and with them its close animation: about one close in twenty on a test X server.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">One PR with its test.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>Crop edges rounded to the nearest pixel, and a crop that starts left of or above the screen crops its far edges too.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">Two small PRs with tests.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>Frame timing: one late vblank no longer resets the estimate, Present events without a timestamp (NVIDIA) are skipped, and animations advance by when frames are shown.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">Two small PRs.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>Find a plugin by name where packages install plugins.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">A follow-up to #1547.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>With xrender, picom waited for the X server twice for every copy it drew, only to be able to log an error: up to 454 waits per frame with 16 windows on a test X server. It now sends those requests without waiting, and still logs errors: 2 waits per frame.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">One small PR.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>A backend call that binds a window's picture when picom already knows its size, without asking X for it. The base for binding a resized window's picture without stalling the frame; the rest of that sits with the window animations, as it builds on them. See <a href="#bind">below</a>.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">A picom PR with a new optional backend call.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>Wait for the X server only when it may have drawn since the last wait. See <a href="#fence">below</a>.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">A picom PR. Its test reads the frame timing log, so it goes after that, or gets a test of its own. Then let the GPU do the wait, where the driver can.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>A high-priority GPU context in the egl backend, so picom's frames don't queue behind a program's drawing. See <a href="#gpu">below</a>.</td>
-						<td data-label="Today">The fork, with <code>backend = "egl"</code>.</td>
-						<td data-label="Could go as">A small picom PR.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-					<tr>
-						<td>A frame timing log and a tool that reads it, and what each frame draws. Everything on this page was measured with it.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">It is large, so first ask whether picom wants it.</td>
-						<td data-label="Status"><span class="tag open">ready</span></td>
-					</tr>
-
-					<tr><th colspan="4" scope="rowgroup">Window animations: in the fork, upstream an open question</th></tr>
-					<tr>
-						<td>Outputs for the tile style: the size of a window's picture, a fill and a backdrop, the mean, median or edge colour of its content, its frame kept on a crop, an old picture at its own size, keeping the stacking while windows pass, and a crop that lies in a turned window's plane.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">Open.</td>
-						<td data-label="Status"><span class="tag fork">in fork</span></td>
-					</tr>
-					<tr>
-						<td>Bind a resized window's new picture without stalling the frame: name it without waiting, bind it once X has confirmed its size, keep the old one bound meanwhile. See <a href="#bind">below</a>.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">Open. Only its backend call is among the fixes, above.</td>
-						<td data-label="Status"><span class="tag fork">in fork</span></td>
-					</tr>
-					<tr>
-						<td>Knowing when a window's new picture is drawn: drawing done before picom saw the resize counts too, and while an animation shows an old picture, picom asks the program to draw again, in every window inside it. See <a href="#pictures">below</a>.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">Open.</td>
-						<td data-label="Status"><span class="tag fork">in fork</span></td>
-					</tr>
-					<tr>
-						<td>An animation that waits: while a script's <code>wait</code> output is set, its time doesn't run, so an open starts when the window has a picture with content. A plugin can make a window's animation wait too, so the windows that make room for an open start with it.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">Open.</td>
-						<td data-label="Status"><span class="tag fork">in fork</span></td>
-					</tr>
-					<tr>
-						<td>Plugin calls for window animations: the X events picom reads, renaming a window's move, show or hide, and reading what a window's animation sets.</td>
-						<td data-label="Today">The fork.</td>
-						<td data-label="Could go as">Open.</td>
-						<td data-label="Status"><span class="tag fork">in fork</span></td>
-					</tr>
-					<tr>
-						<td>Plugin calls added for live resize: a lease on an animation, a mark that a window has drawn, and where an animation will draw a window a moment ahead.</td>
-						<td data-label="Today">Parked with live resize, on a branch of the fork.</td>
-						<td data-label="Could go as">Not proposed: live resize is parked.</td>
-						<td data-label="Status"><span class="tag dropped">parked</span></td>
-					</tr>
-					<tr>
-						<td>Zoom for the tile style, and keeping windows at the same depth in their stacking order. No style uses them now.</td>
-						<td data-label="Today">Parked on a branch of the fork.</td>
-						<td data-label="Could go as">Not proposed.</td>
-						<td data-label="Status"><span class="tag dropped">parked</span></td>
-					</tr>
-					<tr>
-						<td>A picture worker: a thread that binds and frees window pictures, so no frame waits for one. Built and measured: the binds left the frame, but the freeze at the start of a move stayed, because the GPU was the larger cost. See <a href="#gpu">below</a>.</td>
-						<td data-label="Today">A branch of the fork.</td>
-						<td data-label="Could go as">Not proposed for now.</td>
-						<td data-label="Status"><span class="tag dropped">parked</span></td>
-					</tr>
-
-					<tr><th colspan="4" scope="rowgroup">i3</th></tr>
-					<tr>
-						<td>i3's main loop handles the events it reads while flushing, which made one of i3's tests fail now and then. Found along the way; the animations don't need it.</td>
-						<td data-label="Today">Not needed here.</td>
-						<td data-label="Could go as">i3 <a href="https://github.com/i3/i3/pull/6664">#6664</a>.</td>
-						<td data-label="Status"><span class="tag open">open</span></td>
-					</tr>
-					<tr>
-						<td>A <code>draw_at</code> command and a <code>window::resize</code> event, for live resize. See <a href="#dropped">below</a>.</td>
-						<td data-label="Today">Not used.</td>
-						<td data-label="Could go as">Not proposed.</td>
-						<td data-label="Status"><span class="tag dropped">dropped</span></td>
-					</tr>
-
-					<tr><th colspan="4" scope="rowgroup">The user's setup</th></tr>
-					<tr>
-						<td>Turn NVIDIA's OpenGL flipping off, with monitors at different rates. See <a href="#flipping">below</a>.</td>
-						<td data-label="Today">A driver setting.</td>
-						<td data-label="Could go as">Nothing to offer: it is how the driver works on X. picom's tracker has the same symptom (<a href="https://github.com/yshui/picom/issues/1027">#1027</a>).</td>
-						<td data-label="Status"><span class="tag fork">setting</span></td>
-					</tr>
-
-					<tr><th colspan="4" scope="rowgroup">Stays in the plugins</th></tr>
-					<tr>
-						<td>Workspace order, monitors, which way a switch went, and the overview with its clicks (ws-direction).</td>
-						<td data-label="Today">The plugin, from EWMH properties.</td>
-						<td data-label="Could go as">Stays in the plugin. It works with picom once the API it uses is there.</td>
-						<td data-label="Status"><span class="tag done">plugin</span></td>
-					</tr>
-					<tr>
-						<td>Why a window moved, and where a window that opens or closes splits from its neighbours (win-cause).</td>
-						<td data-label="Today">The plugin, from X events and i3.</td>
-						<td data-label="Could go as">Stays in the plugin.</td>
-						<td data-label="Status"><span class="tag done">plugin</span></td>
-					</tr>
-				</tbody>
-			</table>
+		<section id="backlog" class="text">
+			<h2>The backlog</h2>
+			<p>The backlog has a page of its own: <a href="backlog.html">6:backlog</a>, one row per change, with where it stands and how big it is.</p>
 		</section>
 
 		<section id="late-frames" class="text">
